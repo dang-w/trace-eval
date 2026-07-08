@@ -1,0 +1,4 @@
+{
+  "name": "sample",
+  "description": "A tiny 5-case general-knowledge task with short, verifiable answers, so trace-eval is runnable end to end."
+}

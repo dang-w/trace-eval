@@ -1,0 +1,27 @@
+[
+  {
+    "id": "arith-sum",
+    "input": "What is 2 + 2? Reply with just the number, no punctuation or extra words.",
+    "reference": "4"
+  },
+  {
+    "id": "capital-france",
+    "input": "What is the capital of France? Reply with just the city name, nothing else.",
+    "reference": "Paris"
+  },
+  {
+    "id": "antonym-hot",
+    "input": "Give the single-word antonym of 'hot'. Reply with just the one word, lowercase, no punctuation.",
+    "reference": "cold"
+  },
+  {
+    "id": "formula-water",
+    "input": "What is the chemical formula for water? Reply with just the formula, no extra text.",
+    "reference": "H2O"
+  },
+  {
+    "id": "red-planet",
+    "input": "Which planet is known as the Red Planet? Reply with just the planet name, nothing else.",
+    "reference": "Mars"
+  }
+]
