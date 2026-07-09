@@ -157,14 +157,57 @@ process verdict is never read as a correctness verdict.
 Real output from both scorers — full runs with complete traces — is committed under
 [`examples/`](examples/), so you can read what the harness produces without running it.
 
+## Judging soundness, and how much to trust the judge
+
+`verify_before_assert` is structural: it confirms a verification *happened*, not that it was
+any good. Judging whether a verification was **sound** — did it actually check the answer and
+reach the right verdict — is a semantic call, so it needs a model. `verification_sound` is
+that LLM-as-judge: given the question, the first answer, the verify step, and the reference
+answer, it returns `sound` / `unsound` plus a one-line rationale.
+
+```bash
+.venv/bin/trace-eval run tasks/soundness --scorer verification_sound
+```
+
+An LLM judge is non-deterministic, which meets the harness's reproducibility discipline head
+on. The answer here is not to pretend the judge is deterministic, but to **record what it
+was** (model, params, the exact prompt, and every raw verdict) and to **measure how much to
+trust it before trusting any verdict it makes**. That is the meta-eval:
+
+```bash
+.venv/bin/trace-eval meta --gold gold/verification_sound.json --k 5
+```
+
+It runs the judge `K` times over a small, hand-labelled **gold set** and reports two numbers,
+*above* any verdict the judge produced:
+
+- **Self-consistency** — does the judge give the same verdict across identical calls?
+  (Measures stability, not correctness.) Every raw verdict is retained, never collapsed early.
+- **Gold-agreement** — does the judge's verdict match a human's on the gold set? (Measures
+  correctness.) The exact disagreements are listed.
+
+The report leads with those trust figures and only then shows the judge's verdicts, so a
+verdict is never read without the figures that bound how much it is worth. The gold set
+([`gold/verification_sound.json`](gold/verification_sound.json)) is a **self-contained**,
+hand-labelled fixture — a human label attaches to a specific verify-step output, so the
+labelled material travels with the file rather than being keyed to a (varying) live run.
+
+The task set gains [`tasks/soundness/`](tasks/soundness/): cognitive-reflection traps whose
+seductive first answer is wrong, so a verification can genuinely be sound (catches it) or
+unsound (rubber-stamps it) — the material the judge needs. The trace report also surfaces a
+coarse **Changed** signal (first answer vs committed output); it is not a semantic correction
+verdict (that is a later build).
+
 ## Not yet (by design)
 
-Tool-call / agent-loop traces, an LLM-judged trace scorer, a web UI, a multi-provider
-abstraction, a config DSL, parallelism, and a scorer registry. Those are later builds;
-the point is that the seams make them cheap, not that this repo anticipates them.
+Tool-call / agent-loop traces, a web UI, a multi-provider abstraction, a config DSL,
+parallelism, and a scorer registry. On the judge specifically: bias probes (position,
+verbosity, self-preference), tuning the judge prompt against the gold set, a judge ensemble,
+a blind (no-reference) variant, and the correction scorer proper. Those are later builds; the
+point is that the seams make them cheap, not that this repo anticipates them.
 
 ## Development
 
 ```bash
-.venv/bin/pytest    # 37 tests, no network or API key required (a fake model caller is used)
+.venv/bin/pytest    # 61 tests, no network or API key required (a fake model caller is used)
 ```

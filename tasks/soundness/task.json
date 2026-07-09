@@ -1,0 +1,4 @@
+{
+  "name": "soundness",
+  "description": "Cognitive-reflection traps: each case has a seductive but wrong intuitive first answer, then a self-check that re-derives it. Because the first answer can genuinely be wrong, the verification step can be sound (catches and corrects it) or unsound (rubber-stamps the error) — the material the verification_sound judge needs. Reference answers are unambiguous so the judge (which sees the reference) can decide soundness."
+}

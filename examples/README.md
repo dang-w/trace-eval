@@ -13,11 +13,15 @@ model version, params, and prompts are recorded in each run's `meta` and trace.
 | --- | --- | --- |
 | [`sample/`](sample/) | `reference` | Output-level scoring: normalised match against a reference answer. The `formula-water` miss (`H₂O` vs `H2O`) is a real, illustrative normalisation limitation. |
 | [`self-check/`](self-check/) | `verify_before_assert` | Trace-level scoring: each result carries a two-step `answer` → `verify` trace, and the scorer grades whether a substantive verification step revisited the answer. |
+| [`soundness/`](soundness/) | `verification_sound` | LLM-judged soundness on the cognitive-reflection task. The `lily-pads` case is the payoff: the model answered `47` (correct) but its verify step was the bare string `47`, and the judge flagged it **unsound** — a rubber-stamp that did no work, even though the answer is right. The judge separates "answer correct" from "verification sound." |
+| [`meta-eval/`](meta-eval/) | (meta) | How much to trust that judge: self-consistency 100% (flip rate 0%) and gold-agreement 100% (10/10) over the gold set. **Read the caveat:** the gold set is 10 deliberately clear-cut items with the reference visible, so 100% means the judge is reliable *on unambiguous cases*, not everywhere — the borderline cases that would actually flip it aren't in this gold yet. A clean number is only as strong as the set behind it. |
 
 Regenerate (needs an `ANTHROPIC_API_KEY`):
 
 ```bash
 trace-eval run tasks/sample --scorer reference
 trace-eval run tasks/self-check --scorer verify_before_assert
+trace-eval run tasks/soundness --scorer verification_sound
+trace-eval meta --gold gold/verification_sound.json --k 5
 # then copy the chosen results/ output into the matching examples/ dir
 ```

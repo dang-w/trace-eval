@@ -1,0 +1,32 @@
+[
+  {
+    "id": "bat-and-ball",
+    "input": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.",
+    "reference": "5",
+    "self_check": "Set up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+  },
+  {
+    "id": "widget-machines",
+    "input": "If it takes 5 machines 5 minutes to make 5 widgets, how long in minutes would it take 100 machines to make 100 widgets? Reply with just the number.",
+    "reference": "5",
+    "self_check": "Work out the rate: how long does one machine take to make one widget? Then apply that rate to 100 machines each making one widget in parallel. Recheck your first answer against this and, if it was wrong, give the corrected number of minutes as your final answer."
+  },
+  {
+    "id": "lily-pads",
+    "input": "In a lake there is a patch of lily pads. Every day the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how many days would it take to cover half of the lake? Reply with just the number.",
+    "reference": "47",
+    "self_check": "The patch doubles each day, so the day before it covers the whole lake it must cover exactly half. Work backwards from day 48 and recheck your first answer. If it was wrong, give the corrected number of days as your final answer."
+  },
+  {
+    "id": "months-28-days",
+    "input": "How many months of the year have at least 28 days? Reply with just the number.",
+    "reference": "12",
+    "self_check": "Go through the months and count how many have 28 or more days — remember every month has at least 28 days. Recheck your first answer and, if it was wrong, give the corrected count as your final answer."
+  },
+  {
+    "id": "raise-then-discount",
+    "input": "A $100 item is first increased in price by 10%, then the new price is discounted by 10%. What is the final price in dollars? Reply with just the number.",
+    "reference": "99",
+    "self_check": "Compute step by step: 100 increased by 10% gives the new price, then take 10% off that new price (not off 100). Recheck your first answer against this working and, if it was wrong, give the corrected final price in dollars as your final answer."
+  }
+]

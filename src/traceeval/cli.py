@@ -17,8 +17,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from traceeval.config import DEFAULT_MAX_TOKENS, DEFAULT_MODEL
+from traceeval.judge import DEFAULT_JUDGE_MAX_TOKENS, verification_sound_judge
+from traceeval.metaeval import load_gold, run_meta_eval
 from traceeval.runner import ModelCaller, call_anthropic, run_cases
-from traceeval.report import write_report
+from traceeval.report import write_meta_report, write_report
 from traceeval.scorers import Scorer, reference_scorer, verify_before_assert
 from traceeval.store import RunRecord, save_run
 from traceeval.types import Case
@@ -29,6 +31,10 @@ SCORERS: dict[str, Scorer] = {
     "reference": reference_scorer,
     "verify_before_assert": verify_before_assert,
 }
+
+# The LLM judge is a scorer *factory* (it needs a model caller bound), so it can't sit in the
+# plain SCORERS dict. This name routes to a judge built from the run's model_caller + model.
+JUDGE_SCORER = "verification_sound"
 
 
 def load_task(task_dir: str | Path) -> tuple[str, list[Case]]:
@@ -54,11 +60,16 @@ def load_task(task_dir: str | Path) -> tuple[str, list[Case]]:
 
 def run_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_anthropic) -> int:
     """Execute the ``run`` subcommand. Returns a process exit code."""
-    try:
-        scorer = SCORERS[args.scorer]
-    except KeyError:
-        print(f"unknown scorer: {args.scorer!r} (available: {', '.join(sorted(SCORERS))})", file=sys.stderr)
-        return 2
+    if args.scorer == JUDGE_SCORER:
+        # The judge grades each result by LLM, using the same model_caller as the run.
+        scorer = verification_sound_judge(model_caller, model=args.model, max_tokens=args.max_tokens)
+    else:
+        try:
+            scorer = SCORERS[args.scorer]
+        except KeyError:
+            available = ", ".join(sorted([*SCORERS, JUDGE_SCORER]))
+            print(f"unknown scorer: {args.scorer!r} (available: {available})", file=sys.stderr)
+            return 2
 
     try:
         task_name, cases = load_task(args.task_dir)
@@ -91,6 +102,50 @@ def run_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_an
     return 0
 
 
+def meta_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_anthropic) -> int:
+    """Execute the ``meta`` subcommand: measure how much to trust the judge, then report it.
+
+    Runs the ``verification_sound`` judge K times over a hand-labelled gold set, computes
+    self-consistency and gold-agreement, persists the full record (every raw verdict retained)
+    and writes a report that leads with the trust figures.
+    """
+    try:
+        gold_items = load_gold(args.gold)
+    except FileNotFoundError:
+        print(f"no gold file at: {args.gold}", file=sys.stderr)
+        return 2
+
+    judge = verification_sound_judge(model_caller, model=args.model, max_tokens=args.judge_max_tokens)
+    record = run_meta_eval(
+        gold_items, judge, k=args.k,
+        judge_meta={"judge_model": args.model, "judge_max_tokens": args.judge_max_tokens},
+    )
+
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    out_dir = Path(args.out)
+    meta_path = out_dir / f"meta-{stamp}.json"
+    meta_path.parent.mkdir(parents=True, exist_ok=True)
+    meta_path.write_text(json.dumps(record.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+    report_path = write_meta_report(record, out_dir / "meta_report.md")
+
+    sc = record.self_consistency
+    ga = record.gold_agreement
+    # Report "not measured" rather than a measured 0% when there was nothing to judge — the
+    # whole point of this build is honest trust figures, so the summary line holds that line too.
+    consistency = (
+        f"self-consistency {sc.mean_agreement:.0%} (flip rate {sc.flip_rate:.0%})"
+        if sc.items else "self-consistency not measured (no judged items)"
+    )
+    agreement = (
+        f"gold-agreement {ga.agreement:.0%} ({ga.n - len(ga.disagreements)}/{ga.n})"
+        if ga.n else "gold-agreement not measured (no gold items)"
+    )
+    print(f"judge '{args.model}' over {len(gold_items)} gold items (K={args.k}) — {consistency}, {agreement}")
+    print(f"  record: {meta_path}")
+    print(f"  report: {report_path}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="trace-eval", description="A minimal eval harness with real trace capture.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -102,6 +157,15 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS, dest="max_tokens",
                      help=f"max output tokens per call (default: {DEFAULT_MAX_TOKENS})")
     run.add_argument("--out", default="results", help="output directory for results JSON + report.md (default: results)")
+
+    meta = sub.add_parser("meta", help="measure how much to trust the verification_sound judge")
+    meta.add_argument("--gold", default="gold/verification_sound.json",
+                      help="path to a hand-labelled gold file (default: gold/verification_sound.json)")
+    meta.add_argument("--k", type=int, default=5, help="judge samples per item for self-consistency (default: 5)")
+    meta.add_argument("--model", default=DEFAULT_MODEL, help=f"judge model string (default: {DEFAULT_MODEL})")
+    meta.add_argument("--judge-max-tokens", type=int, default=DEFAULT_JUDGE_MAX_TOKENS, dest="judge_max_tokens",
+                      help=f"max output tokens per judge call (default: {DEFAULT_JUDGE_MAX_TOKENS})")
+    meta.add_argument("--out", default="results", help="output directory for meta JSON + meta_report.md (default: results)")
     return parser
 
 
@@ -109,6 +173,8 @@ def main(argv: list[str] | None = None, *, model_caller: ModelCaller = call_anth
     args = build_parser().parse_args(argv)
     if args.command == "run":
         return run_command(args, model_caller=model_caller)
+    if args.command == "meta":
+        return meta_command(args, model_caller=model_caller)
     return 1  # pragma: no cover — argparse enforces a valid subcommand
 
 

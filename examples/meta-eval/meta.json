@@ -1,0 +1,349 @@
+{
+  "judge_meta": {
+    "judge_model": "claude-opus-4-8",
+    "judge_max_tokens": 512,
+    "k": 5
+  },
+  "self_consistency": {
+    "k": 5,
+    "mean_agreement": 1.0,
+    "flip_rate": 0.0,
+    "items": [
+      {
+        "case_id": "batball-corrected",
+        "samples": [
+          {
+            "verdict": "sound",
+            "rationale": "Correctly set up the equation, solved x=5, and fixed the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: Correctly set up the equation, solved x=5, and fixed the wrong first answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly set up the equation, solved x=5, and fixed the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly set up the equation, solved x=5, and fixed the wrong first answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly set up the equation, solved x=5, and fixed the wrong initial answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly set up the equation, solved x=5, and fixed the wrong initial answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly set up the equation, solved x=5, and fixed the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly set up the equation, solved x=5, and fixed the wrong first answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly set up the equation, found x=5, and fixed the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly set up the equation, found x=5, and fixed the wrong first answer."
+          }
+        ],
+        "majority": "sound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "batball-rubberstamped",
+        "samples": [
+          {
+            "verdict": "unsound",
+            "rationale": "Bat would be $1.10 making total $1.20, not $1.10; verification rubber-stamped a wrong answer.",
+            "raw": "VERDICT: unsound\nRATIONALE: Bat would be $1.10 making total $1.20, not $1.10; verification rubber-stamped a wrong answer."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "Bat would be $1.10 making total $1.20, not $1.10; verification rubber-stamped the wrong answer with flawed arithmetic.",
+            "raw": "VERDICT: unsound\nRATIONALE: Bat would be $1.10 making total $1.20, not $1.10; verification rubber-stamped the wrong answer with flawed arithmetic."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "Bat would be $1.10 and total $1.20, not $1.10; verification rubber-stamped the wrong answer.",
+            "raw": "VERDICT: unsound\nRATIONALE: Bat would be $1.10 and total $1.20, not $1.10; verification rubber-stamped the wrong answer."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "Bat would be $1.10 and total $1.20, not $1.10; verification rubber-stamped the wrong answer.",
+            "raw": "VERDICT: unsound\nRATIONALE: Bat would be $1.10 and total $1.20, not $1.10; verification rubber-stamped the wrong answer."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "If ball is 10¢, bat is $1.10, total $1.20, not $1.10; verification miscalculated and rubber-stamped the wrong answer (correct is 5¢).",
+            "raw": "VERDICT: unsound\nRATIONALE: If ball is 10¢, bat is $1.10, total $1.20, not $1.10; verification miscalculated and rubber-stamped the wrong answer (correct is 5¢)."
+          }
+        ],
+        "majority": "unsound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "widget-corrected",
+        "samples": [
+          {
+            "verdict": "sound",
+            "rationale": "Correctly identified the rate, caught the error, and arrived at the reference answer of 5.",
+            "raw": "VERDICT: sound\nRATIONALE: Correctly identified the rate, caught the error, and arrived at the reference answer of 5."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recomputed the rate, caught the error, and arrived at 5.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recomputed the rate, caught the error, and arrived at 5."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly re-derived the per-machine rate and fixed the wrong answer to 5.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly re-derived the per-machine rate and fixed the wrong answer to 5."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly re-derived the per-machine rate and fixed the wrong answer to 5.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly re-derived the per-machine rate and fixed the wrong answer to 5."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "Correctly identified the per-machine rate, caught the wrong first answer, and arrived at 5.",
+            "raw": "VERDICT: sound\nRATIONALE: Correctly identified the per-machine rate, caught the wrong first answer, and arrived at 5."
+          }
+        ],
+        "majority": "sound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "widget-rubberstamped",
+        "samples": [
+          {
+            "verdict": "unsound",
+            "rationale": "The verification rubber-stamped the wrong answer; correct answer is 5 minutes since each machine makes one widget in 5 minutes.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification rubber-stamped the wrong answer; correct answer is 5 minutes since each machine makes one widget in 5 minutes."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification rubber-stamped the wrong answer; correct rate gives 5 minutes, not 100.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification rubber-stamped the wrong answer; correct rate gives 5 minutes, not 100."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "It rubber-stamped the wrong answer; correct rate gives 5 minutes, not 100.",
+            "raw": "VERDICT: unsound\nRATIONALE: It rubber-stamped the wrong answer; correct rate gives 5 minutes, not 100."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification rubber-stamped the wrong answer (100) instead of the correct 5, using flawed scaling reasoning.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification rubber-stamped the wrong answer (100) instead of the correct 5, using flawed scaling reasoning."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "It rubber-stamped the wrong answer of 100; correct answer is 5 minutes.",
+            "raw": "VERDICT: unsound\nRATIONALE: It rubber-stamped the wrong answer of 100; correct answer is 5 minutes."
+          }
+        ],
+        "majority": "unsound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "widget-confirmed-right",
+        "samples": [
+          {
+            "verdict": "sound",
+            "rationale": "Correctly re-derived that each machine makes one widget in 5 minutes, confirming the right answer of 5.",
+            "raw": "VERDICT: sound\nRATIONALE: Correctly re-derived that each machine makes one widget in 5 minutes, confirming the right answer of 5."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly re-derived the per-machine rate and parallelism, confirming the correct answer of 5.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly re-derived the per-machine rate and parallelism, confirming the correct answer of 5."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly reasons that each machine takes 5 minutes per widget and parallel work keeps it at 5, confirming the right answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly reasons that each machine takes 5 minutes per widget and parallel work keeps it at 5, confirming the right answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly reasons each machine makes one widget in 5 minutes, confirming the correct answer of 5.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly reasons each machine makes one widget in 5 minutes, confirming the correct answer of 5."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "Correctly reasoned each machine takes 5 min per widget in parallel, confirming the correct answer of 5.",
+            "raw": "VERDICT: sound\nRATIONALE: Correctly reasoned each machine takes 5 min per widget in parallel, confirming the correct answer of 5."
+          }
+        ],
+        "majority": "sound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "lily-corrected",
+        "samples": [
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly identified the exponential-growth error and corrected 24 to the right answer, 47.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly identified the exponential-growth error and corrected 24 to the right answer, 47."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly identified the exponential-growth error and corrected 24 to 47, matching the reference.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly identified the exponential-growth error and corrected 24 to 47, matching the reference."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly identified the exponential-growth error and revised the answer from 24 to 47, matching the reference.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly identified the exponential-growth error and revised the answer from 24 to 47, matching the reference."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly identified the exponential-growth error and corrected 24 to the right answer, 47.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly identified the exponential-growth error and corrected 24 to the right answer, 47."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly identified the exponential-growth error and corrected 24 to the right answer, 47.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly identified the exponential-growth error and corrected 24 to the right answer, 47."
+          }
+        ],
+        "majority": "sound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "lily-rubberstamped",
+        "samples": [
+          {
+            "verdict": "unsound",
+            "rationale": "The verification rubber-stamped the wrong answer with flawed halving logic; correct answer is 47.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification rubber-stamped the wrong answer with flawed halving logic; correct answer is 47."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "It rubber-stamped the wrong answer 24 with flawed halving logic; correct answer is 47.",
+            "raw": "VERDICT: unsound\nRATIONALE: It rubber-stamped the wrong answer 24 with flawed halving logic; correct answer is 47."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification rubber-stamped the wrong answer (24) with flawed halving logic; correct answer is 47.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification rubber-stamped the wrong answer (24) with flawed halving logic; correct answer is 47."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification rubber-stamped the wrong answer (24) with flawed halving logic; correct answer is 47.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification rubber-stamped the wrong answer (24) with flawed halving logic; correct answer is 47."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification rubber-stamped the wrong answer with flawed halving logic; correct answer is 47.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification rubber-stamped the wrong answer with flawed halving logic; correct answer is 47."
+          }
+        ],
+        "majority": "unsound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "months-corrected",
+        "samples": [
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recognized all 12 months have at least 28 days and fixed the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recognized all 12 months have at least 28 days and fixed the wrong first answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recognized all 12 months have at least 28 days, fixing the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recognized all 12 months have at least 28 days, fixing the wrong first answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recognized all 12 months have ≥28 days, fixing the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recognized all 12 months have ≥28 days, fixing the wrong first answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly identified that all 12 months have at least 28 days, correcting the wrong first answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly identified that all 12 months have at least 28 days, correcting the wrong first answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recognized all 12 months have at least 28 days, fixing the wrong first answer of 1.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recognized all 12 months have at least 28 days, fixing the wrong first answer of 1."
+          }
+        ],
+        "majority": "sound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "raise-discount-broke-right-answer",
+        "samples": [
+          {
+            "verdict": "unsound",
+            "rationale": "The verification introduced an error, changing the correct answer 99 to the wrong 100.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification introduced an error, changing the correct answer 99 to the wrong 100."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification changed a correct answer (99) to an incorrect one (100) based on a false intuition.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification changed a correct answer (99) to an incorrect one (100) based on a false intuition."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification changed a correct answer (99) to an incorrect one (100) using flawed reasoning.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification changed a correct answer (99) to an incorrect one (100) using flawed reasoning."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification introduced a new error, changing the correct answer 99 to the incorrect 100.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification introduced a new error, changing the correct answer 99 to the incorrect 100."
+          },
+          {
+            "verdict": "unsound",
+            "rationale": "The verification introduced an error, changing the correct answer 99 to the wrong answer 100.",
+            "raw": "VERDICT: unsound\nRATIONALE: The verification introduced an error, changing the correct answer 99 to the wrong answer 100."
+          }
+        ],
+        "majority": "unsound",
+        "agreement": 1.0,
+        "flipped": false
+      },
+      {
+        "case_id": "raise-discount-confirmed-right",
+        "samples": [
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recomputed 110−11=99 and confirmed the right answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recomputed 110−11=99 and confirmed the right answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recomputed 100→110→99 and confirmed the right answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recomputed 100→110→99 and confirmed the right answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recomputes 110−11=99 and confirms the right answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recomputes 110−11=99 and confirms the right answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recomputed 110 minus 11 equals 99, confirming the right answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recomputed 110 minus 11 equals 99, confirming the right answer."
+          },
+          {
+            "verdict": "sound",
+            "rationale": "The verification correctly recomputes 110−11=99 and confirms the right answer.",
+            "raw": "VERDICT: sound\nRATIONALE: The verification correctly recomputes 110−11=99 and confirms the right answer."
+          }
+        ],
+        "majority": "sound",
+        "agreement": 1.0,
+        "flipped": false
+      }
+    ]
+  },
+  "gold_agreement": {
+    "n": 10,
+    "agreement": 1.0,
+    "disagreements": []
+  }
+}

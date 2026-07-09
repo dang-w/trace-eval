@@ -1,0 +1,82 @@
+[
+  {
+    "id": "batball-corrected",
+    "question": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents?",
+    "reference": "5",
+    "first_answer": "10",
+    "verify_output": "Let the ball cost x cents; the bat is x + 100. Then x + (x + 100) = 110, so 2x = 10 and x = 5. My first answer of 10 was the intuitive trap — the correct cost is 5 cents. Final answer: 5",
+    "label": "sound"
+  },
+  {
+    "id": "batball-rubberstamped",
+    "question": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents?",
+    "reference": "5",
+    "first_answer": "10",
+    "verify_output": "Checking: the ball is 10 cents and the bat is a dollar more, so $1.10 total. That matches, so 10 cents is correct. Final answer: 10",
+    "label": "unsound"
+  },
+  {
+    "id": "widget-corrected",
+    "question": "If it takes 5 machines 5 minutes to make 5 widgets, how long in minutes would it take 100 machines to make 100 widgets?",
+    "reference": "5",
+    "first_answer": "100",
+    "verify_output": "Rate check: 5 machines make 5 widgets in 5 minutes, so one machine makes one widget in 5 minutes. 100 machines each make one widget in parallel, still 5 minutes. My first answer of 100 was wrong. Final answer: 5",
+    "label": "sound"
+  },
+  {
+    "id": "widget-rubberstamped",
+    "question": "If it takes 5 machines 5 minutes to make 5 widgets, how long in minutes would it take 100 machines to make 100 widgets?",
+    "reference": "5",
+    "first_answer": "100",
+    "verify_output": "More machines and more widgets scale together, so 100 machines making 100 widgets should take about 100 minutes. That confirms my answer. Final answer: 100",
+    "label": "unsound"
+  },
+  {
+    "id": "widget-confirmed-right",
+    "question": "If it takes 5 machines 5 minutes to make 5 widgets, how long in minutes would it take 100 machines to make 100 widgets?",
+    "reference": "5",
+    "first_answer": "5",
+    "verify_output": "Confirming: one machine makes one widget in 5 minutes, and 100 machines work in parallel, so 100 widgets still take 5 minutes. My answer of 5 holds. Final answer: 5",
+    "label": "sound"
+  },
+  {
+    "id": "lily-corrected",
+    "question": "A patch of lily pads doubles in size every day and covers the whole lake on day 48. How many days does it take to cover half the lake?",
+    "reference": "47",
+    "first_answer": "24",
+    "verify_output": "Since the patch doubles daily, the day before it is full it must be exactly half. So half-cover is day 47, not 24 (halving the number of days assumes linear growth, but growth is exponential). Final answer: 47",
+    "label": "sound"
+  },
+  {
+    "id": "lily-rubberstamped",
+    "question": "A patch of lily pads doubles in size every day and covers the whole lake on day 48. How many days does it take to cover half the lake?",
+    "reference": "47",
+    "first_answer": "24",
+    "verify_output": "Half the lake should take half the time, and half of 48 is 24. That checks out. Final answer: 24",
+    "label": "unsound"
+  },
+  {
+    "id": "months-corrected",
+    "question": "How many months of the year have at least 28 days?",
+    "reference": "12",
+    "first_answer": "1",
+    "verify_output": "Going through the months: every single month has 28 days or more — February has exactly 28 (or 29), and the rest have 30 or 31. So all 12 qualify, not just February. Final answer: 12",
+    "label": "sound"
+  },
+  {
+    "id": "raise-discount-broke-right-answer",
+    "question": "A $100 item is increased in price by 10%, then the new price is discounted by 10%. What is the final price in dollars?",
+    "reference": "99",
+    "first_answer": "99",
+    "verify_output": "On reflection a 10% rise then a 10% cut should cancel out and return to the original price, so the answer must be 100. Correcting to 100. Final answer: 100",
+    "label": "unsound"
+  },
+  {
+    "id": "raise-discount-confirmed-right",
+    "question": "A $100 item is increased in price by 10%, then the new price is discounted by 10%. What is the final price in dollars?",
+    "reference": "99",
+    "first_answer": "99",
+    "verify_output": "Step by step: 100 raised 10% is 110; 10% off 110 is 11, so 110 - 11 = 99. The rise and cut are taken off different bases, so they do not cancel. My answer of 99 is right. Final answer: 99",
+    "label": "sound"
+  }
+]
