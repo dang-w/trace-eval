@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from traceeval.store import RunRecord
+from traceeval.types import DIM_OUTPUT, DIM_TRACE, Result, Score
 
 _MAX_CELL = 60
 
@@ -24,8 +25,64 @@ def _cell(value: object) -> str:
     return text
 
 
+def _output_section(scores: list[Score], results_by_id: dict[str, Result]) -> list[str]:
+    """Output-dimension table: how the produced answer scored against the reference."""
+    lines = [
+        "## Output scores",
+        "",
+        "| Case | Pass | Score | Expected | Output |",
+        "| --- | :---: | ---: | --- | --- |",
+    ]
+    for score in scores:
+        result = results_by_id.get(score.case_id)
+        # Show the error in the Output column when the run failed, else the output.
+        output = result.error if (result and result.error) else (result.output if result else "")
+        expected = score.detail.get("expected", "")
+        lines.append(
+            f"| {_cell(score.case_id)} "
+            f"| {'✅' if score.passed else '❌'} "
+            f"| {score.value:.2f} "
+            f"| {_cell(expected)} "
+            f"| {_cell(output)} |"
+        )
+    lines.append("")
+    return lines
+
+
+def _trace_section(scores: list[Score], results_by_id: dict[str, Result]) -> list[str]:
+    """Trace-dimension table: whether the *process* held up, kept distinct from correctness.
+
+    The ``Verified`` column is deliberately not headed "Pass" — this grades the trace (did a
+    substantive verification happen), not whether the answer was right.
+    """
+    lines = [
+        "## Trace-level scores (process)",
+        "",
+        "_Grades the process from the trace — did a substantive verification step revisit the "
+        "answer — not whether the answer is correct._",
+        "",
+        "| Case | Verified | Score | Verification | Reason |",
+        "| --- | :---: | ---: | --- | --- |",
+    ]
+    for score in scores:
+        lines.append(
+            f"| {_cell(score.case_id)} "
+            f"| {'✅' if score.passed else '❌'} "
+            f"| {score.value:.2f} "
+            f"| {_cell(score.detail.get('verify_output', ''))} "
+            f"| {_cell(score.detail.get('reason', ''))} |"
+        )
+    lines.append("")
+    return lines
+
+
 def render_report(record: RunRecord) -> str:
-    """Return the markdown report for a run."""
+    """Return the markdown report for a run.
+
+    Output and trace scores render in separate, clearly-labelled sections so a process
+    verdict is never read as a correctness verdict. A run uses one scorer, so in practice
+    one section appears; grouping by dimension keeps that honest and future-proof.
+    """
     scores = record.scores
     results_by_id = {r.case_id: r for r in record.results}
 
@@ -44,24 +101,16 @@ def render_report(record: RunRecord) -> str:
         f"- **Cases:** {total}",
         f"- **Pass rate:** {passed}/{total} ({pct:.0f}%)",
         "",
-        "| Case | Pass | Score | Expected | Output |",
-        "| --- | :---: | ---: | --- | --- |",
     ]
 
-    for score in scores:
-        result = results_by_id.get(score.case_id)
-        # Show the error in the Output column when the run failed, else the output.
-        output = result.error if (result and result.error) else (result.output if result else "")
-        expected = score.detail.get("expected", "")
-        lines.append(
-            f"| {_cell(score.case_id)} "
-            f"| {'✅' if score.passed else '❌'} "
-            f"| {score.value:.2f} "
-            f"| {_cell(expected)} "
-            f"| {_cell(output)} |"
-        )
+    output_scores = [s for s in scores if s.dimension == DIM_OUTPUT]
+    trace_scores = [s for s in scores if s.dimension == DIM_TRACE]
+    if output_scores:
+        lines += _output_section(output_scores, results_by_id)
+    if trace_scores:
+        lines += _trace_section(trace_scores, results_by_id)
 
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines).rstrip("\n") + "\n"
 
 
 def write_report(record: RunRecord, path: str | Path) -> Path:

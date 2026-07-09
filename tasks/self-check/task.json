@@ -1,0 +1,4 @@
+{
+  "name": "self-check",
+  "description": "Each case answers, then runs a self-check that re-examines the answer before committing it. Graded by verify_before_assert (a trace-level scorer): did a substantive verification step actually happen? Several cases are classic first-answer traps where the self-check has real work to do."
+}

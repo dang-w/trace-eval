@@ -34,9 +34,16 @@ def _fixture_result() -> Result:
 
 
 def test_case_round_trips():
-    case = Case(id="arith-1", input="What is 2 + 2?", reference="4", metadata={"topic": "math"})
+    case = Case(
+        id="arith-1",
+        input="What is 2 + 2?",
+        reference="4",
+        self_check="Recheck the arithmetic and correct if wrong.",
+        metadata={"topic": "math"},
+    )
     restored = Case.from_dict(json.loads(json.dumps(case.to_dict())))
     assert restored == case
+    assert restored.self_check == "Recheck the arithmetic and correct if wrong."
 
 
 def test_result_round_trips_through_json():
@@ -49,6 +56,24 @@ def test_score_round_trips():
     score = Score(case_id="arith-1", scorer="reference", value=1.0, passed=True, detail={"expected": "4", "got": "4"})
     restored = Score.from_dict(json.loads(json.dumps(score.to_dict())))
     assert restored == score
+    assert restored.dimension == "output"  # default when absent
+
+
+def test_trace_dimension_score_round_trips():
+    score = Score(case_id="c1", scorer="verify_before_assert", value=1.0, passed=True,
+                  dimension="trace", detail={"reason": "substantive verification"})
+    restored = Score.from_dict(json.loads(json.dumps(score.to_dict())))
+    assert restored == score
+    assert restored.dimension == "trace"
+
+
+def test_pre_42_dicts_load_without_the_new_fields():
+    """Backwards compatible: runs/cases saved before #42 have no self_check / dimension."""
+    case = Case.from_dict({"id": "c1", "input": "x", "reference": "y"})
+    assert case.self_check is None
+
+    score = Score.from_dict({"case_id": "c1", "scorer": "reference", "value": 1.0, "passed": True})
+    assert score.dimension == "output"
 
 
 def test_trace_step_shape_supports_future_kinds():

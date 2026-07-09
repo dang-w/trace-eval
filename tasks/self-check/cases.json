@@ -1,0 +1,26 @@
+[
+  {
+    "id": "count-r-strawberry",
+    "input": "How many times does the letter 'r' appear in the word 'strawberry'? Reply with just the number.",
+    "reference": "3",
+    "self_check": "Recount the letter 'r' in 'strawberry' one character at a time, listing each position. If your previous answer was wrong, give the corrected number as your final answer."
+  },
+  {
+    "id": "multiply-17-24",
+    "input": "What is 17 × 24? Reply with just the number.",
+    "reference": "408",
+    "self_check": "Recompute 17 × 24 by hand, showing the working (e.g. 17×20 and 17×4, then add). If your previous answer was wrong, give the corrected product as your final answer."
+  },
+  {
+    "id": "discount-price",
+    "input": "A jacket costs $80 and is on sale for 15% off. What is the sale price in dollars? Reply with just the number.",
+    "reference": "68",
+    "self_check": "Recompute the discount (15% of 80) and the sale price step by step. Verify each step and, if your previous answer was wrong, give the corrected sale price as your final answer."
+  },
+  {
+    "id": "days-between",
+    "input": "How many days are there from March 1st to March 15th inclusive? Reply with just the number.",
+    "reference": "15",
+    "self_check": "Recheck by counting the days from the 1st to the 15th inclusive. Confirm whether both endpoints are counted, and if your previous answer was wrong, give the corrected number as your final answer."
+  }
+]

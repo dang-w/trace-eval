@@ -28,6 +28,13 @@ STEP_MODEL_CALL = "model_call"
 STEP_TOOL_CALL = "tool_call"  # reserved for later
 STEP_AGENT_STEP = "agent_step"  # reserved for later
 
+# --- Step roles -----------------------------------------------------------
+# A model_call step also carries a *role* in its metadata, so a trace-level scorer can
+# tell the first answer apart from a later verification without guessing by position.
+# v1 uses exactly two: the answer, and an optional self-check that verifies it.
+ROLE_ANSWER = "answer"
+ROLE_VERIFY = "verify"
+
 
 @dataclass
 class TokenUsage:
@@ -117,11 +124,19 @@ class Trace:
 
 @dataclass
 class Case:
-    """A single evaluation case: an input, and optionally the reference answer."""
+    """A single evaluation case: an input, and optionally the reference answer.
+
+    ``self_check`` is the one field that turns a case multi-step: when set, it is a plain
+    instruction for a verification pass ("recheck the arithmetic; correct it if wrong").
+    The runner runs the answer, then feeds that instruction plus the prior answer back in
+    as a second ``model_call`` — no placeholder syntax, no DSL, just an instruction string.
+    Left ``None``, the case stays single-step and behaves exactly as it did in v1.
+    """
 
     id: str
     input: str
     reference: str | None = None
+    self_check: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -129,6 +144,7 @@ class Case:
             "id": self.id,
             "input": self.input,
             "reference": self.reference,
+            "self_check": self.self_check,
             "metadata": self.metadata,
         }
 
@@ -138,6 +154,7 @@ class Case:
             id=d["id"],
             input=d["input"],
             reference=d.get("reference"),
+            self_check=d.get("self_check"),
             metadata=d.get("metadata", {}) or {},
         )
 
@@ -176,6 +193,15 @@ class Result:
         )
 
 
+# --- Score dimensions -----------------------------------------------------
+# A score grades either the *output* (does the answer match) or the *trace* (was the
+# process sound — did a verification happen). The report renders the two dimensions in
+# separate, clearly-labelled sections so a process verdict is never read as a correctness
+# verdict. Defaults to output, so every existing scorer and stored run is unchanged.
+DIM_OUTPUT = "output"
+DIM_TRACE = "trace"
+
+
 @dataclass
 class Score:
     """A scorer's judgement of one result.
@@ -183,12 +209,15 @@ class Score:
     ``value`` is a numeric score (reference scorers use 0.0/1.0); ``passed`` is the
     boolean the pass rate aggregates over; ``detail`` carries scorer-specific context
     (e.g. what was expected vs. what was produced) for the report and for debugging.
+    ``dimension`` says whether this grades the output or the trace, so the report can keep
+    the two apart.
     """
 
     case_id: str
     scorer: str
     value: float
     passed: bool
+    dimension: str = DIM_OUTPUT
     detail: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -197,6 +226,7 @@ class Score:
             "scorer": self.scorer,
             "value": self.value,
             "passed": self.passed,
+            "dimension": self.dimension,
             "detail": self.detail,
         }
 
@@ -207,5 +237,6 @@ class Score:
             scorer=d["scorer"],
             value=d["value"],
             passed=d["passed"],
+            dimension=d.get("dimension", DIM_OUTPUT),
             detail=d.get("detail", {}) or {},
         )

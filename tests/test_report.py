@@ -45,3 +45,46 @@ def test_write_report_creates_file(tmp_path):
 def test_cell_escapes_pipes_and_newlines():
     from traceeval.report import _cell
     assert _cell("a|b\nc") == "a\\|b c"
+
+
+# --- Trace-level section (task 5) ---------------------------------------------
+
+def _trace_record():
+    from traceeval.types import DIM_TRACE, Score
+    results = [
+        Result(case_id="c1", output="Final answer: 7", trace=Trace()),
+        Result(case_id="c2", output="8", trace=Trace()),
+    ]
+    scores = [
+        Score(case_id="c1", scorer="verify_before_assert", value=1.0, passed=True,
+              dimension=DIM_TRACE, detail={"verify_output": "Rechecked: 3+4=7", "reason": "substantive verification step revisited the answer"}),
+        Score(case_id="c2", scorer="verify_before_assert", value=0.0, passed=False,
+              dimension=DIM_TRACE, detail={"reason": "no verification step after the answer"}),
+    ]
+    return RunRecord(results=results, scores=scores, meta={"task": "self-check", "scorer": "verify_before_assert"})
+
+
+def test_report_renders_trace_section_distinctly():
+    md = render_report(_trace_record())
+    # Trace scores land in their own labelled section, with process-oriented columns.
+    assert "## Trace-level scores (process)" in md
+    assert "| Case | Verified | Score | Verification | Reason |" in md
+    # Not conflated with output scores: no output table when only trace scores are present.
+    assert "## Output scores" not in md
+    assert "| Case | Pass | Score | Expected | Output |" not in md
+    # The per-case verdict and reason are surfaced.
+    assert "| c1 |" in md and "| c2 |" in md
+    assert "no verification step after the answer" in md
+
+
+def test_output_and_trace_sections_are_separate_when_both_present():
+    from traceeval.types import DIM_TRACE, Score
+    results = [Result(case_id="c1", output="Paris", trace=Trace())]
+    scores = [
+        Score(case_id="c1", scorer="reference", value=1.0, passed=True, detail={"expected": "Paris"}),
+        Score(case_id="c1", scorer="verify_before_assert", value=1.0, passed=True,
+              dimension=DIM_TRACE, detail={"verify_output": "checked, correct", "reason": "ok"}),
+    ]
+    md = render_report(RunRecord(results=results, scores=scores, meta={"task": "t"}))
+    assert "## Output scores" in md
+    assert "## Trace-level scores (process)" in md

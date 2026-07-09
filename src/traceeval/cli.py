@@ -19,7 +19,7 @@ from pathlib import Path
 from traceeval.config import DEFAULT_MAX_TOKENS, DEFAULT_MODEL
 from traceeval.runner import ModelCaller, call_anthropic, run_cases
 from traceeval.report import write_report
-from traceeval.scorers import Scorer, reference_scorer
+from traceeval.scorers import Scorer, reference_scorer, verify_before_assert
 from traceeval.store import RunRecord, save_run
 from traceeval.types import Case
 
@@ -27,6 +27,7 @@ from traceeval.types import Case
 # added here (or passed in code), no plugin machinery.
 SCORERS: dict[str, Scorer] = {
     "reference": reference_scorer,
+    "verify_before_assert": verify_before_assert,
 }
 
 

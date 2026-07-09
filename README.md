@@ -4,15 +4,18 @@ A minimal eval harness that runs one evaluation end to end — and captures a re
 structured **trace** for every result, not just the final string.
 
 It is deliberately small. The value is in getting two interface seams right, so the
-things that come next (a trace-level scorer, semantic diff, experiments) are cheap to
-add without a refactor:
+things that come next (richer traces, semantic diff, experiments) are cheap to add
+without a refactor:
 
 1. **A pluggable scorer** is just a function `(Case, Result) -> Score`. No registry, no
    base class, no plugin system.
 2. **Trace capture**: a `Result` carries a `Trace` — an ordered list of typed
-   `TraceStep`s. v1 only ever emits one `model_call` step, but the shape is designed so
-   agent steps and tool calls slot in later; a future scorer that inspects
-   `result.trace.steps` needs no change here to do it.
+   `TraceStep`s. A scorer that inspects `result.trace.steps` needs no change to these
+   seams to do it.
+
+The first payoff is the `verify_before_assert` scorer: it grades the *process* — did the
+model verify its answer before committing — by reading the trace, not the output. See
+[Grading the process](#grading-the-process-a-trace-level-scorer) below.
 
 ## Install
 
@@ -65,6 +68,23 @@ DSL.
 ]
 ```
 
+A case may also declare an optional `self_check` — a plain instruction for a verification
+pass. When present, the runner runs the answer, then feeds the answer plus that
+instruction back in as a second `model_call`, so the trace has a real verify step to
+grade. This is a **fixed two-step sequence** (answer, then verify) — not an agent loop,
+tool use, or planning.
+
+```json
+[
+  {
+    "id": "count-r",
+    "input": "How many times does 'r' appear in 'strawberry'? Reply with just the number.",
+    "reference": "3",
+    "self_check": "Recount the 'r's one character at a time; correct your answer if it was wrong."
+  }
+]
+```
+
 ## Writing a scorer
 
 A scorer is any function of the shape `(Case, Result) -> Score`:
@@ -100,17 +120,51 @@ Every `Result` carries the full trace, persisted to JSON:
 }
 ```
 
-`kind` is `model_call` in v1; `tool_call` and `agent_step` are reserved for later. A
-trace-level scorer reads `result.trace.steps` — that is what the trace seam buys.
+A multi-step (self-check) run appends a second step; each step is tagged with its role
+(`answer` / `verify`) in `metadata`, so a trace scorer tells them apart without guessing
+by position. `tool_call` and `agent_step` kinds are reserved for later builds.
 
-## Not in v1 (by design)
+## Grading the process (a trace-level scorer)
 
-Web UI, a multi-provider abstraction, a config DSL, parallelism, a scorer registry, and
-the trace-level scorer itself. Those are later builds; the point of v1 is that they
-become cheap, not that v1 anticipates them.
+`verify_before_assert` reads `result.trace.steps` instead of `result.output`. It passes
+when the trace holds a substantive verification step that revisited the answer:
+
+```bash
+.venv/bin/trace-eval run tasks/self-check --scorer verify_before_assert
+```
+
+```text
+## Trace-level scores (process)
+
+_Grades the process from the trace — did a substantive verification step revisit the
+answer — not whether the answer is correct._
+
+| Case | Verified | Score | Verification | Reason |
+| --- | :---: | ---: | --- | --- |
+| count-r-strawberry | ✅ | 1.00 | Rechecking each letter: s-t-r-a-w-b-e-r-r-y … | substantive verification step revisited the answer |
+```
+
+The substance bar is deliberately **structural**: a verify step exists, follows the
+answer, is non-empty, and clears a small character floor (a real second pass, not a
+one-token rubber-stamp). It does **not** judge whether the verification was
+*semantically* correct — whether it caught the right thing. That is an LLM-as-judge trace
+scorer, a later build. Keeping it structural keeps it pure, deterministic, and testable
+offline with no key.
+
+Output scores and trace scores render in separate, clearly-labelled report sections, so a
+process verdict is never read as a correctness verdict.
+
+Real output from both scorers — full runs with complete traces — is committed under
+[`examples/`](examples/), so you can read what the harness produces without running it.
+
+## Not yet (by design)
+
+Tool-call / agent-loop traces, an LLM-judged trace scorer, a web UI, a multi-provider
+abstraction, a config DSL, parallelism, and a scorer registry. Those are later builds;
+the point is that the seams make them cheap, not that this repo anticipates them.
 
 ## Development
 
 ```bash
-.venv/bin/pytest    # 21 tests, no network or API key required (a fake model caller is used)
+.venv/bin/pytest    # 37 tests, no network or API key required (a fake model caller is used)
 ```
