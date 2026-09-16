@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from traceeval.mutate import CLASS_BASELINE, KillRate, MutationRecord, kill_rate_verdict
 from traceeval.store import RunRecord
 from traceeval.types import DIM_OUTPUT, DIM_TRACE, Result, ROLE_ANSWER, ROLE_VERIFY, Score
 
@@ -38,11 +39,15 @@ def answer_changed(result: Result) -> bool | None:
     return first != (result.output or "").strip()
 
 
-def _cell(value: object) -> str:
-    """Make an arbitrary value safe for a one-line markdown table cell."""
+def _cell(value: object, *, truncate: bool = True) -> str:
+    """Make an arbitrary value safe for a one-line markdown table cell.
+
+    Long values are truncated by default; pass ``truncate=False`` for cells whose full content
+    *is* the finding (a list of surviving mutant ids) and must never be elided.
+    """
     text = "" if value is None else str(value)
     text = text.replace("\n", " ").replace("\r", " ").replace("|", "\\|")
-    if len(text) > _MAX_CELL:
+    if truncate and len(text) > _MAX_CELL:
         text = text[: _MAX_CELL - 1] + "…"
     return text
 
@@ -93,9 +98,7 @@ def _trace_section(scores: list[Score], results_by_id: dict[str, Result]) -> lis
         result = results_by_id.get(score.case_id)
         changed = answer_changed(result) if result else None
         changed_cell = "—" if changed is None else ("yes" if changed else "no")
-        # A structural scorer records a 'reason'; an LLM judge records a 'rationale'. Show
-        # whichever is present so both kinds of trace score explain themselves in this column.
-        why = score.detail.get("reason") or score.detail.get("rationale", "")
+        why = score.explanation
         lines.append(
             f"| {_cell(score.case_id)} "
             f"| {'✅' if score.passed else '❌'} "
@@ -245,4 +248,116 @@ def write_meta_report(record: "MetaEvalRecord", path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_meta_report(record), encoding="utf-8")
+    return path
+
+
+# --- Mutation report --------------------------------------------------------
+# Per scorer: mutants killed / mutants applicable, then every survivor named with the class it
+# accepted. The language is diagnostic on purpose. A 100% kill rate over five hand-authored
+# mutants says "not caught vacuous by these five," not "this scorer works."
+
+
+def _synthetic_label(record: MutationRecord) -> str:
+    """Read the synthetic flag off the mutants; never assert it as a constant."""
+    not_synthetic = sum(1 for m in record.mutants if not m.synthetic)
+    if not record.mutants:
+        return "none"
+    if not_synthetic == 0:
+        return "all labelled synthetic (hand-authored fixtures; not live runs)"
+    return f"{not_synthetic} NOT labelled synthetic — check each mutant's provenance below"
+
+
+def render_mutation_report(record: MutationRecord) -> str:
+    """Return the markdown mutation report: kill rates first, survivors diagnosed below."""
+    meta = record.meta
+
+    lines = [
+        f"# Mutation Report — {meta.get('task', 'run')}",
+        "",
+        f"- **Mutants:** {len(record.mutants)} — {_synthetic_label(record)}",
+        f"- **Scorers:** {', '.join(meta.get('scorers', record.kill_rates))}",
+        "",
+        "## Kill rates",
+        "",
+        "_Killed = the scorer failed a mutant it is responsible for (same dimension). A survivor "
+        "is a broken run the scorer accepted. A kill rate is only meaningful when the scorer "
+        "passes the unmodified baseline for every case with mutants — a scorer that fails a "
+        "baseline fails everything, and a case with no baseline is unmeasured; both void the number._",
+        "",
+        "| Scorer | Baseline | Killed / applicable | Kill rate | Survivors |",
+        "| --- | :---: | ---: | ---: | --- |",
+    ]
+    for name, kr in record.kill_rates.items():
+        baseline = "missing" if kr.baseline_passed is None else ("pass" if kr.baseline_passed else "FAIL")
+        lines.append(
+            f"| {_cell(name)} "
+            f"| {baseline} "
+            f"| {kr.killed}/{kr.applicable} "
+            f"| {kill_rate_verdict(kr)} "
+            f"| {_cell(', '.join(kr.survivors) or '—', truncate=False)} |"
+        )
+    lines.append("")
+
+    survivors = [o for o in record.outcomes if o.applicable and not o.killed]
+    if survivors:
+        lines += [
+            "## Survivors",
+            "",
+            "_Each row is a scorer that accepted a broken run. The scorer's own stated reason for "
+            "passing is shown beside the class of breakage it missed._",
+            "",
+            "| Scorer | Mutant | Diagnosis | Scorer's reason |",
+            "| --- | --- | --- | --- |",
+        ]
+        for o in survivors:
+            lines.append(
+                f"| {_cell(o.scorer)} "
+                f"| {_cell(o.mutant_id)} "
+                f"| accepted a broken run of class {_cell(o.mutant_cls)} "
+                f"| {_cell(o.reason)} |"
+            )
+        lines.append("")
+
+    lines += [
+        "## All outcomes",
+        "",
+        "_Every scorer × mutant pair, including out-of-dimension pairs that do not count toward "
+        "any kill rate._",
+        "",
+        "| Mutant | Class | Scorer | Passed | Counts? | Outcome |",
+        "| --- | --- | --- | :---: | :---: | --- |",
+    ]
+    for o in record.outcomes:
+        if o.mutant_cls == CLASS_BASELINE:
+            outcome = "control"
+        elif not o.applicable:
+            outcome = "out of dimension"
+        else:
+            outcome = "killed" if o.killed else "SURVIVED"
+        lines.append(
+            f"| {_cell(o.mutant_id)} "
+            f"| {_cell(o.mutant_cls)} "
+            f"| {_cell(o.scorer)} "
+            f"| {'yes' if o.passed else 'no'} "
+            f"| {'yes' if o.applicable else 'no'} "
+            f"| {outcome} |"
+        )
+    lines.append("")
+
+    lines += ["## Mutants", ""]
+    for m in record.mutants:
+        label = "synthetic" if m.synthetic else "NOT labelled synthetic"
+        lines.append(f"- **{_cell(m.id)}** (`{m.cls}`, {label}): {m.note}")
+        if m.provenance:
+            lines.append(f"  - provenance: {m.provenance}")
+    lines.append("")
+
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def write_mutation_report(record: MutationRecord, path: str | Path) -> Path:
+    """Render the mutation report and write it to ``path`` (creating parent dirs)."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_mutation_report(record), encoding="utf-8")
     return path

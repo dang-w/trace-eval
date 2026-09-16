@@ -198,16 +198,58 @@ unsound (rubber-stamps it) — the material the judge needs. The trace report al
 coarse **Changed** signal (first answer vs committed output); it is not a semantic correction
 verdict (that is a later build).
 
+## Mutation testing: can the scorer be made to fail?
+
+A scorer that passes everything looks identical to a scorer that works, until you hand it
+something it should reject. `verify_before_assert` posted 100% on its first task for exactly
+that reason: it measured the *presence* of a verification step, not its efficacy. Mutation
+testing is the systematic version of that catch: before trusting a scorer, prove it can fail.
+
+```bash
+.venv/bin/trace-eval mutate tasks/soundness
+```
+
+A task may carry a `mutants/` directory of hand-authored, deliberately broken copies of a
+known-good run, each tagged with its class of breakage: `wrong-answer`, `empty-verify`,
+`rubber-stamp`, `contradicted-verify`, `missing-trace`, plus an unmodified `baseline` as the
+control. The mode applies every built-in deterministic scorer to every mutant and reports a
+**kill rate** per scorer: mutants killed / mutants applicable (a scorer is only on the hook for
+mutants that break the dimension it grades). No model calls; the run is offline and
+deterministic.
+
+```text
+| Scorer | Baseline | Killed / applicable | Kill rate | Survivors |
+| --- | :---: | ---: | ---: | --- |
+| reference | FAIL | 1/1 | void — fails the baseline | — |
+| verify_before_assert | pass | 2/4 | 50% | bat-and-ball--contradicted-verify, bat-and-ball--rubber-stamp |
+```
+
+Every survivor is named with the class it accepted (*this scorer accepted a broken run of
+class rubber-stamp*). The baseline matters: a scorer that fails the unmodified run fails
+everything, so its kill rate is withheld rather than reported as a free 100%. The run
+surfaces both failure modes. `verify_before_assert` accepts a one-sentence rubber-stamp and a
+verify step that derives a different answer, because it is a length floor. Two of its four
+applicable mutants keep the *shape* of a verify step and gut only the substance; no purely
+structural check can kill those, so 50% is this scorer's ceiling on this set, not a bug in
+its implementation. That boundary is the finding. And `reference` fails the baseline because
+on a multi-step run the final output is whatever the verify step said: it passes only when
+the verify step replies with the bare answer, and fails whenever the step shows working. The
+two do not compose. Both are findings about the scorers, not the model. Mutants are synthetic
+fixtures and labelled as such; five classes on one case are a floor, not a taxonomy. A 100%
+here would mean "not caught vacuous by these five", not "works".
+
 ## Not yet (by design)
 
 Tool-call / agent-loop traces, a web UI, a multi-provider abstraction, a config DSL,
 parallelism, and a scorer registry. On the judge specifically: bias probes (position,
 verbosity, self-preference), tuning the judge prompt against the gold set, a judge ensemble,
-a blind (no-reference) variant, and the correction scorer proper. Those are later builds; the
-point is that the seams make them cheap, not that this repo anticipates them.
+a blind (no-reference) variant, and the correction scorer proper. On mutation testing:
+auto-generated mutants or a mutation-operator DSL, mutating the LLM judge, and an
+answer-extraction policy so `reference` composes with multi-step runs. Those are later builds;
+the point is that the seams make them cheap, not that this repo anticipates them.
 
 ## Development
 
 ```bash
-.venv/bin/pytest    # 61 tests, no network or API key required (a fake model caller is used)
+.venv/bin/pytest    # 84 tests, no network or API key required (a fake model caller is used)
 ```

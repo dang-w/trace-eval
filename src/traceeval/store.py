@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -40,12 +41,22 @@ class RunRecord:
         )
 
 
-def save_run(record: RunRecord, path: str | Path) -> Path:
-    """Write a run to ``path`` as pretty JSON, creating parent dirs as needed."""
+def utc_stamp() -> str:
+    """The filename-safe UTC timestamp every persisted record is named with."""
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def save_json(data: Any, path: str | Path) -> Path:
+    """Write ``data`` to ``path`` as pretty, UTF-8 JSON, creating parent dirs as needed."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(record.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     return path
+
+
+def save_run(record: RunRecord, path: str | Path) -> Path:
+    """Write a run to ``path`` as pretty JSON, creating parent dirs as needed."""
+    return save_json(record.to_dict(), path)
 
 
 def load_run(path: str | Path) -> RunRecord:

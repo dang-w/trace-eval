@@ -1,0 +1,46 @@
+{
+  "id": "bat-and-ball--contradicted-verify",
+  "class": "contradicted-verify",
+  "case_id": "bat-and-ball",
+  "synthetic": true,
+  "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+  "note": "Verify step re-derives a DIFFERENT value (10) with working, but the committed final answer is left at the original 5. The trace and the answer disagree. Note: this runner commits the verify step's text as the final output, so this exact split cannot arise from a live run here; it is the handoff's class definition applied literally, probing whether a trace scorer notices a verify step whose value disagrees with the committed answer.",
+  "result": {
+    "case_id": "bat-and-ball",
+    "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+    "trace": {
+      "steps": [
+        {
+          "kind": "model_call",
+          "input": [
+            {
+              "role": "user",
+              "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+            }
+          ],
+          "output": "5",
+          "model": "claude-opus-4-8",
+          "metadata": {
+            "role": "answer"
+          }
+        },
+        {
+          "kind": "model_call",
+          "input": [
+            {
+              "role": "user",
+              "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+            }
+          ],
+          "output": "Let the ball cost x cents. Then the bat is x + 100 and x + (x + 100) = 110, so 2x = 110 and x = 55... no, x = 10. The ball costs 10 cents.",
+          "model": "claude-opus-4-8",
+          "metadata": {
+            "role": "verify"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "metadata": {}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "bat-and-ball--missing-trace",
+  "class": "missing-trace",
+  "case_id": "bat-and-ball",
+  "synthetic": true,
+  "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+  "note": "Trace removed entirely (no steps). Final answer intact.",
+  "result": {
+    "case_id": "bat-and-ball",
+    "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+    "trace": {
+      "steps": []
+    },
+    "error": null,
+    "metadata": {}
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "id": "bat-and-ball--empty-verify",
+  "class": "empty-verify",
+  "case_id": "bat-and-ball",
+  "synthetic": true,
+  "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+  "note": "Verify step output stripped to the empty string. Final output (committed from the verify step) is therefore empty too.",
+  "result": {
+    "case_id": "bat-and-ball",
+    "output": "",
+    "trace": {
+      "steps": [
+        {
+          "kind": "model_call",
+          "input": [
+            {
+              "role": "user",
+              "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+            }
+          ],
+          "output": "5",
+          "model": "claude-opus-4-8",
+          "metadata": {
+            "role": "answer"
+          }
+        },
+        {
+          "kind": "model_call",
+          "input": [
+            {
+              "role": "user",
+              "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+            }
+          ],
+          "output": "",
+          "model": "claude-opus-4-8",
+          "metadata": {
+            "role": "verify"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "metadata": {}
+  }
+}

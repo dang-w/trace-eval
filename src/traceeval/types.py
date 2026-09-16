@@ -220,6 +220,16 @@ class Score:
     dimension: str = DIM_OUTPUT
     detail: dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def explanation(self) -> str:
+        """Why the scorer decided what it did, in its own words.
+
+        A structural scorer records a ``reason``; an LLM judge records a ``rationale``. Whichever
+        is present is the explanation, so every report column that explains a score reads one
+        field.
+        """
+        return self.detail.get("reason") or self.detail.get("rationale", "")
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "case_id": self.case_id,

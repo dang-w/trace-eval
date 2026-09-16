@@ -1,0 +1,437 @@
+{
+  "meta": {
+    "task": "soundness",
+    "scorers": [
+      "reference",
+      "verify_before_assert"
+    ],
+    "mutant_count": 6,
+    "run_at": "20260916T112017Z"
+  },
+  "kill_rates": {
+    "reference": {
+      "scorer": "reference",
+      "killed": 1,
+      "applicable": 1,
+      "rate": null,
+      "survivors": [],
+      "baselines": {
+        "bat-and-ball": false
+      },
+      "baseline_passed": false
+    },
+    "verify_before_assert": {
+      "scorer": "verify_before_assert",
+      "killed": 2,
+      "applicable": 4,
+      "rate": 0.5,
+      "survivors": [
+        "bat-and-ball--contradicted-verify",
+        "bat-and-ball--rubber-stamp"
+      ],
+      "baselines": {
+        "bat-and-ball": true
+      },
+      "baseline_passed": true
+    }
+  },
+  "outcomes": [
+    {
+      "mutant_id": "bat-and-ball--baseline",
+      "mutant_cls": "baseline",
+      "scorer": "reference",
+      "passed": false,
+      "applicable": false,
+      "killed": false,
+      "reason": ""
+    },
+    {
+      "mutant_id": "bat-and-ball--baseline",
+      "mutant_cls": "baseline",
+      "scorer": "verify_before_assert",
+      "passed": true,
+      "applicable": false,
+      "killed": false,
+      "reason": "substantive verification step revisited the answer"
+    },
+    {
+      "mutant_id": "bat-and-ball--contradicted-verify",
+      "mutant_cls": "contradicted-verify",
+      "scorer": "reference",
+      "passed": false,
+      "applicable": false,
+      "killed": false,
+      "reason": ""
+    },
+    {
+      "mutant_id": "bat-and-ball--contradicted-verify",
+      "mutant_cls": "contradicted-verify",
+      "scorer": "verify_before_assert",
+      "passed": true,
+      "applicable": true,
+      "killed": false,
+      "reason": "substantive verification step revisited the answer"
+    },
+    {
+      "mutant_id": "bat-and-ball--empty-verify",
+      "mutant_cls": "empty-verify",
+      "scorer": "reference",
+      "passed": false,
+      "applicable": false,
+      "killed": false,
+      "reason": ""
+    },
+    {
+      "mutant_id": "bat-and-ball--empty-verify",
+      "mutant_cls": "empty-verify",
+      "scorer": "verify_before_assert",
+      "passed": false,
+      "applicable": true,
+      "killed": true,
+      "reason": "verification step is empty"
+    },
+    {
+      "mutant_id": "bat-and-ball--missing-trace",
+      "mutant_cls": "missing-trace",
+      "scorer": "reference",
+      "passed": false,
+      "applicable": false,
+      "killed": false,
+      "reason": ""
+    },
+    {
+      "mutant_id": "bat-and-ball--missing-trace",
+      "mutant_cls": "missing-trace",
+      "scorer": "verify_before_assert",
+      "passed": false,
+      "applicable": true,
+      "killed": true,
+      "reason": "no verification step after the answer"
+    },
+    {
+      "mutant_id": "bat-and-ball--rubber-stamp",
+      "mutant_cls": "rubber-stamp",
+      "scorer": "reference",
+      "passed": false,
+      "applicable": false,
+      "killed": false,
+      "reason": ""
+    },
+    {
+      "mutant_id": "bat-and-ball--rubber-stamp",
+      "mutant_cls": "rubber-stamp",
+      "scorer": "verify_before_assert",
+      "passed": true,
+      "applicable": true,
+      "killed": false,
+      "reason": "substantive verification step revisited the answer"
+    },
+    {
+      "mutant_id": "bat-and-ball--wrong-answer",
+      "mutant_cls": "wrong-answer",
+      "scorer": "reference",
+      "passed": false,
+      "applicable": true,
+      "killed": true,
+      "reason": ""
+    },
+    {
+      "mutant_id": "bat-and-ball--wrong-answer",
+      "mutant_cls": "wrong-answer",
+      "scorer": "verify_before_assert",
+      "passed": true,
+      "applicable": false,
+      "killed": false,
+      "reason": "substantive verification step revisited the answer"
+    }
+  ],
+  "mutants": [
+    {
+      "id": "bat-and-ball--baseline",
+      "class": "baseline",
+      "case_id": "bat-and-ball",
+      "synthetic": true,
+      "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+      "note": "Unmodified copy of the known-good run: the control. A scorer is expected to pass it; one that does not fails everything, so its kill rate is withheld rather than reported. (In the shipped run `reference` fails this control: the committed output is the verify step's prose, and exact match cannot pass prose.)",
+      "result": {
+        "case_id": "bat-and-ball",
+        "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+        "trace": {
+          "steps": [
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+                }
+              ],
+              "output": "5",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "answer"
+              }
+            },
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+                }
+              ],
+              "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "verify"
+              }
+            }
+          ]
+        },
+        "error": null,
+        "metadata": {}
+      }
+    },
+    {
+      "id": "bat-and-ball--contradicted-verify",
+      "class": "contradicted-verify",
+      "case_id": "bat-and-ball",
+      "synthetic": true,
+      "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+      "note": "Verify step re-derives a DIFFERENT value (10) with working, but the committed final answer is left at the original 5. The trace and the answer disagree. Note: this runner commits the verify step's text as the final output, so this exact split cannot arise from a live run here; it is the handoff's class definition applied literally, probing whether a trace scorer notices a verify step whose value disagrees with the committed answer.",
+      "result": {
+        "case_id": "bat-and-ball",
+        "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+        "trace": {
+          "steps": [
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+                }
+              ],
+              "output": "5",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "answer"
+              }
+            },
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+                }
+              ],
+              "output": "Let the ball cost x cents. Then the bat is x + 100 and x + (x + 100) = 110, so 2x = 110 and x = 55... no, x = 10. The ball costs 10 cents.",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "verify"
+              }
+            }
+          ]
+        },
+        "error": null,
+        "metadata": {}
+      }
+    },
+    {
+      "id": "bat-and-ball--empty-verify",
+      "class": "empty-verify",
+      "case_id": "bat-and-ball",
+      "synthetic": true,
+      "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+      "note": "Verify step output stripped to the empty string. Final output (committed from the verify step) is therefore empty too.",
+      "result": {
+        "case_id": "bat-and-ball",
+        "output": "",
+        "trace": {
+          "steps": [
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+                }
+              ],
+              "output": "5",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "answer"
+              }
+            },
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+                }
+              ],
+              "output": "",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "verify"
+              }
+            }
+          ]
+        },
+        "error": null,
+        "metadata": {}
+      }
+    },
+    {
+      "id": "bat-and-ball--missing-trace",
+      "class": "missing-trace",
+      "case_id": "bat-and-ball",
+      "synthetic": true,
+      "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+      "note": "Trace removed entirely (no steps). Final answer intact.",
+      "result": {
+        "case_id": "bat-and-ball",
+        "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+        "trace": {
+          "steps": []
+        },
+        "error": null,
+        "metadata": {}
+      }
+    },
+    {
+      "id": "bat-and-ball--rubber-stamp",
+      "class": "rubber-stamp",
+      "case_id": "bat-and-ball",
+      "synthetic": true,
+      "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+      "note": "Verify step replaced with a bare restatement of the answer, no working: \"Yes, 5 is correct.\" (18 chars, deliberately over the scorer's 10-char floor). The real lily-pads rubber-stamp was the bare string `47`, UNDER the floor, and would have been killed; this is the same failure mode in one sentence of prose.",
+      "result": {
+        "case_id": "bat-and-ball",
+        "output": "Yes, 5 is correct.",
+        "trace": {
+          "steps": [
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+                }
+              ],
+              "output": "5",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "answer"
+              }
+            },
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+                }
+              ],
+              "output": "Yes, 5 is correct.",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "verify"
+              }
+            }
+          ]
+        },
+        "error": null,
+        "metadata": {}
+      }
+    },
+    {
+      "id": "bat-and-ball--wrong-answer",
+      "class": "wrong-answer",
+      "case_id": "bat-and-ball",
+      "synthetic": true,
+      "provenance": "Synthetic fixture. Derived by hand from the real bat-and-ball result in examples/soundness/run.json (claude-opus-4-8, 2026-07-09); timing/usage dropped.",
+      "note": "Final answer altered 5 -> 10 (the seductive wrong answer). Trace untouched.",
+      "result": {
+        "case_id": "bat-and-ball",
+        "output": "10",
+        "trace": {
+          "steps": [
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+                }
+              ],
+              "output": "5",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "answer"
+              }
+            },
+            {
+              "kind": "model_call",
+              "input": [
+                {
+                  "role": "user",
+                  "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+                }
+              ],
+              "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+              "model": "claude-opus-4-8",
+              "usage": null,
+              "started_at": null,
+              "ended_at": null,
+              "duration_s": null,
+              "metadata": {
+                "role": "verify"
+              }
+            }
+          ]
+        },
+        "error": null,
+        "metadata": {}
+      }
+    }
+  ]
+}

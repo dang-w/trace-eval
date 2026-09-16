@@ -13,16 +13,16 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 from traceeval.config import DEFAULT_MAX_TOKENS, DEFAULT_MODEL
 from traceeval.judge import DEFAULT_JUDGE_MAX_TOKENS, verification_sound_judge
 from traceeval.metaeval import load_gold, run_meta_eval
+from traceeval.mutate import kill_rate_verdict, load_mutants, run_mutation
 from traceeval.runner import ModelCaller, call_anthropic, run_cases
-from traceeval.report import write_meta_report, write_report
+from traceeval.report import write_meta_report, write_mutation_report, write_report
 from traceeval.scorers import Scorer, reference_scorer, verify_before_assert
-from traceeval.store import RunRecord, save_run
+from traceeval.store import RunRecord, save_json, save_run, utc_stamp
 from traceeval.types import Case
 
 # Built-in scorers by name. A lookup for what ships, not a registry — new scorers are
@@ -80,7 +80,7 @@ def run_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_an
     results = run_cases(cases, model=args.model, max_tokens=args.max_tokens, model_caller=model_caller)
     scores = [scorer(case, result) for case, result in zip(cases, results)]
 
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = utc_stamp()
     record = RunRecord(
         results=results,
         scores=scores,
@@ -121,11 +121,8 @@ def meta_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_a
         judge_meta={"judge_model": args.model, "judge_max_tokens": args.judge_max_tokens},
     )
 
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_dir = Path(args.out)
-    meta_path = out_dir / f"meta-{stamp}.json"
-    meta_path.parent.mkdir(parents=True, exist_ok=True)
-    meta_path.write_text(json.dumps(record.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+    meta_path = save_json(record.to_dict(), out_dir / f"meta-{utc_stamp()}.json")
     report_path = write_meta_report(record, out_dir / "meta_report.md")
 
     sc = record.self_consistency
@@ -142,6 +139,39 @@ def meta_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_a
     )
     print(f"judge '{args.model}' over {len(gold_items)} gold items (K={args.k}) — {consistency}, {agreement}")
     print(f"  record: {meta_path}")
+    print(f"  report: {report_path}")
+    return 0
+
+
+def mutate_command(args: argparse.Namespace) -> int:
+    """Execute the ``mutate`` subcommand: which scorers fail to fail on deliberately broken runs?
+
+    Loads the task's hand-authored mutants, applies every built-in deterministic scorer, and
+    reports a per-scorer kill rate with each survivor diagnosed. No model calls — the LLM judge
+    is out of scope here (it needs a caller and is measured by ``meta`` instead).
+    """
+    # Authoring errors in a fixture (missing dir, unknown class, unknown case, malformed JSON,
+    # duplicate ids) all get the crafted message and exit 2 — never a traceback.
+    try:
+        task_name, cases = load_task(args.task_dir)
+        mutants = load_mutants(args.task_dir)
+        record = run_mutation(cases, mutants, SCORERS, task_name=task_name)
+    except (FileNotFoundError, ValueError, KeyError) as exc:
+        print(str(exc).strip("'"), file=sys.stderr)
+        return 2
+    record.meta["run_at"] = stamp = utc_stamp()
+
+    out_dir = Path(args.out)
+    record_path = save_json(record.to_dict(), out_dir / f"mutation-{task_name}-{stamp}.json")
+    report_path = write_mutation_report(record, out_dir / "mutation_report.md")
+
+    print(f"task '{task_name}' — {len(mutants)} mutants × {len(SCORERS)} scorers")
+    for name, kr in record.kill_rates.items():
+        verdict = f"killed {kr.killed}/{kr.applicable}, kill rate {kill_rate_verdict(kr)}"
+        if kr.survivors:
+            verdict += f"; accepted: {', '.join(kr.survivors)}"
+        print(f"  {name}: {verdict}")
+    print(f"  record: {record_path}")
     print(f"  report: {report_path}")
     return 0
 
@@ -166,6 +196,11 @@ def build_parser() -> argparse.ArgumentParser:
     meta.add_argument("--judge-max-tokens", type=int, default=DEFAULT_JUDGE_MAX_TOKENS, dest="judge_max_tokens",
                       help=f"max output tokens per judge call (default: {DEFAULT_JUDGE_MAX_TOKENS})")
     meta.add_argument("--out", default="results", help="output directory for meta JSON + meta_report.md (default: results)")
+
+    mutate = sub.add_parser("mutate", help="feed every scorer deliberately broken runs; report which fail to fail")
+    mutate.add_argument("task_dir", help="path to a task directory (contains cases.json and mutants/)")
+    mutate.add_argument("--out", default="results",
+                        help="output directory for mutation JSON + mutation_report.md (default: results)")
     return parser
 
 
@@ -175,6 +210,8 @@ def main(argv: list[str] | None = None, *, model_caller: ModelCaller = call_anth
         return run_command(args, model_caller=model_caller)
     if args.command == "meta":
         return meta_command(args, model_caller=model_caller)
+    if args.command == "mutate":
+        return mutate_command(args)
     return 1  # pragma: no cover — argparse enforces a valid subcommand
 
 
