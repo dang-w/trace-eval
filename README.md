@@ -260,6 +260,13 @@ reworded reason string or a newly added scorer does not. `examples/` stays the c
 the ledger behind it. It is a practitioner's run log on a toy harness, not a benchmark, and
 the index says so at the top.
 
+The findings those records are the receipts for live in [`FINDINGS.md`](FINDINGS.md): four
+dated entries, each stating what was expected, what was observed, and what it changed in the
+harness, and each linking the run record behind it. The index carries a **Finding** column
+(from the sidecar `runs/findings.json`) pointing each record back at its finding, so a row
+like `4/4 passed (100%)` is never read without the finding that says why that number is
+vacuous.
+
 ## Not yet (by design)
 
 Tool-call / agent-loop traces, a web UI, a multi-provider abstraction, a config DSL,
@@ -273,5 +280,5 @@ the point is that the seams make them cheap, not that this repo anticipates them
 ## Development
 
 ```bash
-.venv/bin/pytest    # 101 tests, no network or API key required (a fake model caller is used)
+.venv/bin/pytest    # 106 tests, no network or API key required (a fake model caller is used)
 ```

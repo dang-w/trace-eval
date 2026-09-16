@@ -9,8 +9,11 @@ from pathlib import Path
 
 from traceeval.cli import main
 from traceeval.ledger import (
+    FINDINGS_FILENAME,
+    FINDINGS_MAP_FILENAME,
     harness_commit,
     index_runs,
+    load_findings_map,
     load_record,
     mutation_reproduces,
     render_index,
@@ -215,7 +218,7 @@ def test_gate_tolerates_stray_directories_under_tasks(tmp_path):
 
 def test_every_committed_mutation_run_is_reproduced_by_current_code():
     """The regression gate. Selected by record kind (as the index does), not by filename."""
-    records = [(p, load_record(p)) for p in sorted(RUNS.glob("*.json"))]
+    records = [(p, load_record(p)) for p in sorted(RUNS.glob("*.json")) if p.name != FINDINGS_MAP_FILENAME]
     mutation_records = [(p, r) for p, r in records if isinstance(r, MutationRecord)]
     assert mutation_records, "runs/ must hold at least one committed mutation run"
     for path, record in mutation_records:
@@ -225,3 +228,62 @@ def test_every_committed_mutation_run_is_reproduced_by_current_code():
 def test_committed_runs_dir_is_indexed_and_current():
     """runs/INDEX.md is generated; it must match what the records say."""
     assert (RUNS / "INDEX.md").read_text() == render_index(index_runs(RUNS))
+
+
+# --- findings sidecar -------------------------------------------------------
+# runs/findings.json maps a record filename to the finding it is the receipt for. The index
+# shows the link; the self-check "4/4 (100%)" row must carry its Finding 2 pointer, because
+# that is the row a reader misreads.
+
+def _legacy_run(task: str, stamp: str) -> dict:
+    return {"meta": {"task": task, "model": "m", "scorer": "reference", "run_at": stamp}, "results": [], "scores": []}
+
+
+def test_unmapped_record_shows_a_dash_not_an_error(tmp_path):
+    out = tmp_path / "runs"; out.mkdir()
+    (out / "t-reference-20260101T000000Z.json").write_text(json.dumps(_legacy_run("t", "20260101T000000Z")))
+    (row,) = index_runs(out)
+    assert row.finding is None
+    assert "| t | run | reference | m | — | 20260101T000000Z | 0/0 passed (0%) | — |" in render_index([row])
+
+
+def test_mapped_record_links_to_its_finding(tmp_path):
+    out = tmp_path / "runs"; out.mkdir()
+    (out / "t-reference-20260101T000000Z.json").write_text(json.dumps(_legacy_run("t", "20260101T000000Z")))
+    (out / FINDINGS_MAP_FILENAME).write_text(json.dumps({"t-reference-20260101T000000Z.json": "finding-2"}))
+    (row,) = index_runs(out)
+    assert row.finding == "finding-2"
+    text = render_index([row])
+    assert "[Finding 2](../FINDINGS.md#finding-2)" in text
+    assert "| Finding |" in text.split("\n| --- |")[0]          # a column, not a footnote
+    assert FINDINGS_FILENAME in text.split("| Task |")[0]        # the header points at the findings file
+
+
+def test_map_entry_for_a_missing_record_is_an_error(tmp_path, capsys):
+    out = tmp_path / "runs"; out.mkdir()
+    (out / FINDINGS_MAP_FILENAME).write_text(json.dumps({"ghost.json": "finding-1"}))
+    try:
+        load_findings_map(out)
+    except ValueError as exc:
+        assert "ghost.json" in str(exc)
+    else:
+        raise AssertionError("a map entry naming a missing record must be rejected")
+    assert main(["index", "--runs", str(out)]) == 2
+    assert "ghost.json" in capsys.readouterr().err
+
+
+def test_findings_map_is_not_indexed_as_a_record(tmp_path):
+    out = tmp_path / "runs"; out.mkdir()
+    (out / FINDINGS_MAP_FILENAME).write_text("{}")
+    assert index_runs(out) == []
+
+
+def test_every_committed_record_maps_to_a_finding_that_exists():
+    """The DoD: all five committed records carry a finding pointer, and each pointer resolves
+    to an anchor in FINDINGS.md."""
+    mapping = load_findings_map(RUNS)
+    records = sorted(p.name for p in RUNS.glob("*.json") if p.name != FINDINGS_MAP_FILENAME)
+    assert records and set(records) <= set(mapping), set(records) - set(mapping)
+    findings = (REPO / FINDINGS_FILENAME).read_text()
+    for finding_id in set(mapping.values()):
+        assert f'id="{finding_id}"' in findings, finding_id

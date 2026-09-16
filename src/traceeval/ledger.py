@@ -33,6 +33,8 @@ from traceeval.store import RunRecord
 
 RUNS_DIRNAME = "runs"
 INDEX_FILENAME = "INDEX.md"
+FINDINGS_FILENAME = "FINDINGS.md"        # at the repo root; the findings the records are receipts for
+FINDINGS_MAP_FILENAME = "findings.json"  # sidecar in runs/: {record filename: finding id}
 
 KIND_RUN = "run"
 KIND_META = "meta"
@@ -90,9 +92,34 @@ def load_record(path: str | Path) -> RunRecord | MetaEvalRecord | MutationRecord
     raise ValueError(f"not a trace-eval record: {path} (no run, meta, or mutation keys)")
 
 
+def load_findings_map(runs_dir: str | Path) -> dict[str, str]:
+    """The sidecar ``findings.json``: which finding each record is the receipt for.
+
+    A sidecar, rather than a field in each record, so committed receipts are never edited to
+    annotate them. Absent file → empty map (records simply show no finding). An entry naming a
+    record that does not exist is an error: a receipt pointer that points at nothing is worse
+    than none.
+    """
+    runs_dir = Path(runs_dir)
+    path = runs_dir / FINDINGS_MAP_FILENAME
+    if not path.exists():
+        return {}
+    try:
+        mapping = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"malformed findings map {path}: {exc}") from exc
+    if not isinstance(mapping, dict) or not all(isinstance(v, str) for v in mapping.values()):
+        raise ValueError(f"malformed findings map {path}: expected {{record filename: finding id}}")
+    missing = [name for name in mapping if not (runs_dir / name).exists()]
+    if missing:
+        raise ValueError(f"findings map {path} names record(s) that do not exist: {', '.join(missing)}")
+    return mapping
+
+
 @dataclass
 class IndexRow:
-    """One line of the ledger index: what ran, on what, when, and the one-line result."""
+    """One line of the ledger index: what ran, on what, when, the one-line result, and which
+    finding (if any) the record is the receipt for."""
 
     path: Path
     kind: str
@@ -103,6 +130,7 @@ class IndexRow:
     dirty: bool | None
     run_at: str
     headline: str
+    finding: str | None = None
 
 
 def _stamp_from_filename(path: Path) -> str:
@@ -156,7 +184,14 @@ def _row_for(path: Path, record: RunRecord | MetaEvalRecord | MutationRecord) ->
 def index_runs(runs_dir: str | Path) -> list[IndexRow]:
     """One row per JSON record in ``runs_dir``, newest first. Non-JSON files are ignored."""
     runs_dir = Path(runs_dir)
-    rows = [_row_for(p, load_record(p)) for p in sorted(runs_dir.glob("*.json"))]
+    findings = load_findings_map(runs_dir)
+    rows = []
+    for p in sorted(runs_dir.glob("*.json")):
+        if p.name == FINDINGS_MAP_FILENAME:
+            continue
+        row = _row_for(p, load_record(p))
+        row.finding = findings.get(p.name)
+        rows.append(row)
     # Newest first; rows with no date at all go last, never to the top as if newest.
     return sorted(rows, key=lambda r: (r.run_at != "—", r.run_at), reverse=True)
 
@@ -178,24 +213,31 @@ def render_index(rows: list[IndexRow]) -> str:
         "code reproduces every committed one. `Commit` is the harness commit the record was "
         "produced from; `*` means uncommitted changes to tracked files were present, so the record "
         "is not reproducible from that commit alone (untracked files are not counted); `—` means "
-        "the record predates provenance tracking._",
+        "the record predates provenance tracking. `Finding` links the entry in "
+        f"`{FINDINGS_FILENAME}` this record is the receipt for; read it before the number._",
         "",
     ]
     if not rows:
         lines += ["_no runs recorded yet_", ""]
         return "\n".join(lines)
     lines += [
-        "| Task | Kind | Scorer | Model | Commit | Run at | Headline | File |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| Task | Kind | Scorer | Model | Commit | Run at | Headline | Finding | File |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for r in rows:
         commit = "—" if not r.commit else (f"{r.commit}*" if r.dirty else r.commit)
+        finding = f"[{_finding_label(r.finding)}](../{FINDINGS_FILENAME}#{r.finding})" if r.finding else "—"
         lines.append(
             f"| {_md(r.task)} | {r.kind} | {_md(r.scorer)} | {_md(r.model)} | {commit} "
-            f"| {r.run_at} | {_md(r.headline)} | [{r.path.name}]({r.path.name}) |"
+            f"| {r.run_at} | {_md(r.headline)} | {finding} | [{r.path.name}]({r.path.name}) |"
         )
     lines.append("")
     return "\n".join(lines)
+
+
+def _finding_label(finding_id: str) -> str:
+    """``finding-2`` → ``Finding 2``; any other id is shown as written."""
+    return finding_id.replace("-", " ").capitalize()
 
 
 def write_index(runs_dir: str | Path) -> Path:

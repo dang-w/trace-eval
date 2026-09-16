@@ -1,0 +1,7 @@
+{
+  "sample-reference-20260708T175334Z.json": "finding-1",
+  "self-check-verify_before_assert-20260709T103951Z.json": "finding-2",
+  "soundness-verification_sound-20260709T121930Z.json": "finding-3",
+  "meta-20260709T122122Z.json": "finding-3",
+  "mutation-soundness-20260916T113410Z.json": "finding-4"
+}
