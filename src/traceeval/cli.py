@@ -17,6 +17,7 @@ from pathlib import Path
 
 from traceeval.config import DEFAULT_MAX_TOKENS, DEFAULT_MODEL
 from traceeval.judge import DEFAULT_JUDGE_MAX_TOKENS, verification_sound_judge
+from traceeval.ledger import RUNS_DIRNAME, harness_commit, index_runs, write_index
 from traceeval.metaeval import load_gold, run_meta_eval
 from traceeval.mutate import kill_rate_verdict, load_mutants, run_mutation
 from traceeval.runner import ModelCaller, call_anthropic, run_cases
@@ -35,6 +36,15 @@ SCORERS: dict[str, Scorer] = {
 # The LLM judge is a scorer *factory* (it needs a model caller bound), so it can't sit in the
 # plain SCORERS dict. This name routes to a judge built from the run's model_caller + model.
 JUDGE_SCORER = "verification_sound"
+
+
+def _provenance() -> dict:
+    """``run_at`` plus the harness commit (if any) — stamped into every persisted record's meta."""
+    prov: dict = {"run_at": utc_stamp()}
+    commit = harness_commit()
+    if commit is not None:
+        prov.update(commit)
+    return prov
 
 
 def load_task(task_dir: str | Path) -> tuple[str, list[Case]]:
@@ -80,15 +90,14 @@ def run_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_an
     results = run_cases(cases, model=args.model, max_tokens=args.max_tokens, model_caller=model_caller)
     scores = [scorer(case, result) for case, result in zip(cases, results)]
 
-    stamp = utc_stamp()
     record = RunRecord(
         results=results,
         scores=scores,
-        meta={"task": task_name, "model": args.model, "scorer": args.scorer, "run_at": stamp},
+        meta={"task": task_name, "model": args.model, "scorer": args.scorer, **_provenance()},
     )
 
     out_dir = Path(args.out)
-    results_path = save_run(record, out_dir / f"{task_name}-{stamp}.json")
+    results_path = save_run(record, out_dir / f"{task_name}-{args.scorer}-{record.meta['run_at']}.json")
     report_path = write_report(record, out_dir / "report.md")
 
     passed = sum(1 for s in scores if s.passed)
@@ -118,11 +127,12 @@ def meta_command(args: argparse.Namespace, *, model_caller: ModelCaller = call_a
     judge = verification_sound_judge(model_caller, model=args.model, max_tokens=args.judge_max_tokens)
     record = run_meta_eval(
         gold_items, judge, k=args.k,
-        judge_meta={"judge_model": args.model, "judge_max_tokens": args.judge_max_tokens},
+        judge_meta={"judge_model": args.model, "judge_max_tokens": args.judge_max_tokens,
+                    "gold": Path(args.gold).name, **_provenance()},
     )
 
     out_dir = Path(args.out)
-    meta_path = save_json(record.to_dict(), out_dir / f"meta-{utc_stamp()}.json")
+    meta_path = save_json(record.to_dict(), out_dir / f"meta-{record.judge_meta['run_at']}.json")
     report_path = write_meta_report(record, out_dir / "meta_report.md")
 
     sc = record.self_consistency
@@ -159,10 +169,10 @@ def mutate_command(args: argparse.Namespace) -> int:
     except (FileNotFoundError, ValueError, KeyError) as exc:
         print(str(exc).strip("'"), file=sys.stderr)
         return 2
-    record.meta["run_at"] = stamp = utc_stamp()
+    record.meta.update(_provenance())
 
     out_dir = Path(args.out)
-    record_path = save_json(record.to_dict(), out_dir / f"mutation-{task_name}-{stamp}.json")
+    record_path = save_json(record.to_dict(), out_dir / f"mutation-{task_name}-{record.meta['run_at']}.json")
     report_path = write_mutation_report(record, out_dir / "mutation_report.md")
 
     print(f"task '{task_name}' — {len(mutants)} mutants × {len(SCORERS)} scorers")
@@ -173,6 +183,23 @@ def mutate_command(args: argparse.Namespace) -> int:
         print(f"  {name}: {verdict}")
     print(f"  record: {record_path}")
     print(f"  report: {report_path}")
+    return 0
+
+
+def index_command(args: argparse.Namespace) -> int:
+    """Execute the ``index`` subcommand: regenerate the run ledger's INDEX.md from its records."""
+    runs_dir = Path(args.runs)
+    if not runs_dir.is_dir():
+        print(f"no runs directory at: {runs_dir}", file=sys.stderr)
+        return 2
+    try:
+        rows = index_runs(runs_dir)
+    except ValueError as exc:  # a stray or malformed JSON in the ledger: say which, exit 2
+        print(str(exc), file=sys.stderr)
+        return 2
+    path = write_index(runs_dir)
+    print(f"indexed {len(rows)} record(s) in {runs_dir}")
+    print(f"  index: {path}")
     return 0
 
 
@@ -201,6 +228,10 @@ def build_parser() -> argparse.ArgumentParser:
     mutate.add_argument("task_dir", help="path to a task directory (contains cases.json and mutants/)")
     mutate.add_argument("--out", default="results",
                         help="output directory for mutation JSON + mutation_report.md (default: results)")
+
+    index = sub.add_parser("index", help="regenerate the committed run ledger's INDEX.md")
+    index.add_argument("--runs", default=RUNS_DIRNAME,
+                       help=f"the tracked runs directory to index (default: {RUNS_DIRNAME})")
     return parser
 
 
@@ -212,6 +243,8 @@ def main(argv: list[str] | None = None, *, model_caller: ModelCaller = call_anth
         return meta_command(args, model_caller=model_caller)
     if args.command == "mutate":
         return mutate_command(args)
+    if args.command == "index":
+        return index_command(args)
     return 1  # pragma: no cover — argparse enforces a valid subcommand
 
 

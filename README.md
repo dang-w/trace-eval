@@ -238,6 +238,28 @@ two do not compose. Both are findings about the scorers, not the model. Mutants 
 fixtures and labelled as such; five classes on one case are a floor, not a taxonomy. A 100%
 here would mean "not caught vacuous by these five", not "works".
 
+## The run ledger: committed runs as receipts
+
+`results/` is gitignored scratch. [`runs/`](runs/) is tracked: a record lands there
+deliberately, with the finding it supports, and stays. Records made from here on name the
+harness commit they were produced from, and whether tracked files had uncommitted changes
+(untracked files are not counted), so a finding about a scorer is tied to the scorer code
+that made it. The four July records predate provenance and show `—`. The index is generated,
+never hand-edited:
+
+```bash
+.venv/bin/trace-eval index          # regenerates runs/INDEX.md from the records
+```
+
+Two kinds of record get two kinds of treatment. LLM runs vary run to run, so they are
+receipts, not baselines: labelled with model and date, never diff-gated. Mutation runs make
+no model calls, so their kill rates are a property of the scorer code, and the test suite
+checks that the current code reproduces every committed one: same kills, same survivors, for
+the scorers the record names. A scorer change that lets a mutant through fails the suite; a
+reworded reason string or a newly added scorer does not. `examples/` stays the curated "read these" layer; `runs/` is
+the ledger behind it. It is a practitioner's run log on a toy harness, not a benchmark, and
+the index says so at the top.
+
 ## Not yet (by design)
 
 Tool-call / agent-loop traces, a web UI, a multi-provider abstraction, a config DSL,
@@ -251,5 +273,5 @@ the point is that the seams make them cheap, not that this repo anticipates them
 ## Development
 
 ```bash
-.venv/bin/pytest    # 84 tests, no network or API key required (a fake model caller is used)
+.venv/bin/pytest    # 101 tests, no network or API key required (a fake model caller is used)
 ```

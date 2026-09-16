@@ -6,7 +6,9 @@ produces without running it yourself. Each JSON file (`run.json`, `meta.json`,
 complete trace — and each `*report.md` is the rendered markdown report.
 
 These are **hand-picked snapshots**, not auto-generated: live output lands in the
-gitignored `results/` dir, and these are copied here deliberately. They are real model
+gitignored `results/` dir, and these are copied here deliberately. The full ledger of
+committed runs, with the harness commit each was produced from, is [`runs/`](../runs/)
+(see its generated `INDEX.md`); this directory is the curated reading layer on top of it. They are real model
 output (`claude-opus-4-8`), so they are illustrative rather than bit-reproducible — the
 model version, params, and prompts are recorded in each run's `meta` and trace.
 

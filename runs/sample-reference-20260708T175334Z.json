@@ -1,0 +1,217 @@
+{
+  "meta": {
+    "task": "sample",
+    "model": "claude-opus-4-8",
+    "scorer": "reference",
+    "run_at": "20260708T175334Z"
+  },
+  "results": [
+    {
+      "case_id": "arith-sum",
+      "output": "4",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "What is 2 + 2? Reply with just the number, no punctuation or extra words."
+              }
+            ],
+            "output": "4",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 33,
+              "output_tokens": 3
+            },
+            "started_at": 1783533203.2035992,
+            "ended_at": 1783533207.3325021,
+            "duration_s": 4.128893458051607,
+            "metadata": {
+              "stop_reason": "end_turn"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "capital-france",
+      "output": "Paris",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "What is the capital of France? Reply with just the city name, nothing else."
+              }
+            ],
+            "output": "Paris",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 28,
+              "output_tokens": 5
+            },
+            "started_at": 1783533207.338211,
+            "ended_at": 1783533209.045792,
+            "duration_s": 1.7075768341310322,
+            "metadata": {
+              "stop_reason": "end_turn"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "antonym-hot",
+      "output": "cold",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "Give the single-word antonym of 'hot'. Reply with just the one word, lowercase, no punctuation."
+              }
+            ],
+            "output": "cold",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 42,
+              "output_tokens": 4
+            },
+            "started_at": 1783533209.050004,
+            "ended_at": 1783533210.641642,
+            "duration_s": 1.5916342081036419,
+            "metadata": {
+              "stop_reason": "end_turn"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "formula-water",
+      "output": "H₂O",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "What is the chemical formula for water? Reply with just the formula, no extra text."
+              }
+            ],
+            "output": "H₂O",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 31,
+              "output_tokens": 6
+            },
+            "started_at": 1783533210.648354,
+            "ended_at": 1783533212.340956,
+            "duration_s": 1.6925971671007574,
+            "metadata": {
+              "stop_reason": "end_turn"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "red-planet",
+      "output": "Mars",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "Which planet is known as the Red Planet? Reply with just the planet name, nothing else."
+              }
+            ],
+            "output": "Mars",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 35,
+              "output_tokens": 5
+            },
+            "started_at": 1783533212.34864,
+            "ended_at": 1783533214.195721,
+            "duration_s": 1.847076167119667,
+            "metadata": {
+              "stop_reason": "end_turn"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    }
+  ],
+  "scores": [
+    {
+      "case_id": "arith-sum",
+      "scorer": "reference",
+      "value": 1.0,
+      "passed": true,
+      "detail": {
+        "expected": "4",
+        "got": "4"
+      }
+    },
+    {
+      "case_id": "capital-france",
+      "scorer": "reference",
+      "value": 1.0,
+      "passed": true,
+      "detail": {
+        "expected": "Paris",
+        "got": "Paris"
+      }
+    },
+    {
+      "case_id": "antonym-hot",
+      "scorer": "reference",
+      "value": 1.0,
+      "passed": true,
+      "detail": {
+        "expected": "cold",
+        "got": "cold"
+      }
+    },
+    {
+      "case_id": "formula-water",
+      "scorer": "reference",
+      "value": 0.0,
+      "passed": false,
+      "detail": {
+        "expected": "H2O",
+        "got": "H₂O"
+      }
+    },
+    {
+      "case_id": "red-planet",
+      "scorer": "reference",
+      "value": 1.0,
+      "passed": true,
+      "detail": {
+        "expected": "Mars",
+        "got": "Mars"
+      }
+    }
+  ]
+}

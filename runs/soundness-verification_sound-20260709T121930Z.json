@@ -1,0 +1,372 @@
+{
+  "meta": {
+    "task": "soundness",
+    "model": "claude-opus-4-8",
+    "scorer": "verification_sound",
+    "run_at": "20260709T121930Z"
+  },
+  "results": [
+    {
+      "case_id": "bat-and-ball",
+      "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number."
+              }
+            ],
+            "output": "5",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 60,
+              "output_tokens": 3
+            },
+            "started_at": 1783599536.338325,
+            "ended_at": 1783599538.068685,
+            "duration_s": 1.730356208048761,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "answer"
+            }
+          },
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nYou previously answered:\n5\n\nSet up the algebra: let the ball cost x cents, so the bat costs x + 100 cents, and x + (x + 100) = 110. Solve for x and check your first answer against it. If your previous answer was wrong, give the corrected number of cents as your final answer."
+              }
+            ],
+            "output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 155,
+              "output_tokens": 109
+            },
+            "started_at": 1783599538.0719821,
+            "ended_at": 1783599541.409441,
+            "duration_s": 3.337454834021628,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "verify"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "widget-machines",
+      "output": "5\n\nOne machine takes 5 minutes to make one widget. With 100 machines working in parallel, each makes its own widget in 5 minutes, so 100 widgets take 5 minutes.",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "If it takes 5 machines 5 minutes to make 5 widgets, how long in minutes would it take 100 machines to make 100 widgets? Reply with just the number."
+              }
+            ],
+            "output": "5",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 61,
+              "output_tokens": 3
+            },
+            "started_at": 1783599541.4149811,
+            "ended_at": 1783599545.005975,
+            "duration_s": 3.590989457909018,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "answer"
+            }
+          },
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "If it takes 5 machines 5 minutes to make 5 widgets, how long in minutes would it take 100 machines to make 100 widgets? Reply with just the number.\n\nYou previously answered:\n5\n\nWork out the rate: how long does one machine take to make one widget? Then apply that rate to 100 machines each making one widget in parallel. Recheck your first answer against this and, if it was wrong, give the corrected number of minutes as your final answer."
+              }
+            ],
+            "output": "5\n\nOne machine takes 5 minutes to make one widget. With 100 machines working in parallel, each makes its own widget in 5 minutes, so 100 widgets take 5 minutes.",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 149,
+              "output_tokens": 63
+            },
+            "started_at": 1783599545.013483,
+            "ended_at": 1783599547.380457,
+            "duration_s": 2.3669709579553455,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "verify"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "lily-pads",
+      "output": "47",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "In a lake there is a patch of lily pads. Every day the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how many days would it take to cover half of the lake? Reply with just the number."
+              }
+            ],
+            "output": "47",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 77,
+              "output_tokens": 3
+            },
+            "started_at": 1783599547.385141,
+            "ended_at": 1783599549.9402912,
+            "duration_s": 2.555145916994661,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "answer"
+            }
+          },
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "In a lake there is a patch of lily pads. Every day the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how many days would it take to cover half of the lake? Reply with just the number.\n\nYou previously answered:\n47\n\nThe patch doubles each day, so the day before it covers the whole lake it must cover exactly half. Work backwards from day 48 and recheck your first answer. If it was wrong, give the corrected number of days as your final answer."
+              }
+            ],
+            "output": "47",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 157,
+              "output_tokens": 3
+            },
+            "started_at": 1783599549.947312,
+            "ended_at": 1783599551.6023538,
+            "duration_s": 1.6550382089335471,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "verify"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "months-28-days",
+      "output": "12\n\nAll twelve months have at least 28 days, since 28 is the minimum number of days in any month (February in a non-leap year). Every other month has 30 or 31 days, which is also at least 28. So my original answer of 12 was correct.",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "How many months of the year have at least 28 days? Reply with just the number."
+              }
+            ],
+            "output": "12",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 28,
+              "output_tokens": 3
+            },
+            "started_at": 1783599551.609687,
+            "ended_at": 1783599552.658742,
+            "duration_s": 1.0490525411441922,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "answer"
+            }
+          },
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "How many months of the year have at least 28 days? Reply with just the number.\n\nYou previously answered:\n12\n\nGo through the months and count how many have 28 or more days — remember every month has at least 28 days. Recheck your first answer and, if it was wrong, give the corrected count as your final answer."
+              }
+            ],
+            "output": "12\n\nAll twelve months have at least 28 days, since 28 is the minimum number of days in any month (February in a non-leap year). Every other month has 30 or 31 days, which is also at least 28. So my original answer of 12 was correct.",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 96,
+              "output_tokens": 77
+            },
+            "started_at": 1783599552.666305,
+            "ended_at": 1783599555.204737,
+            "duration_s": 2.538428083062172,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "verify"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    },
+    {
+      "case_id": "raise-then-discount",
+      "output": "Step 1: 100 increased by 10% = 100 × 1.10 = 110\n\nStep 2: 110 discounted by 10% = 110 × 0.90 = 99\n\n99",
+      "trace": {
+        "steps": [
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "A $100 item is first increased in price by 10%, then the new price is discounted by 10%. What is the final price in dollars? Reply with just the number."
+              }
+            ],
+            "output": "99",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 53,
+              "output_tokens": 3
+            },
+            "started_at": 1783599555.209613,
+            "ended_at": 1783599557.3472881,
+            "duration_s": 2.1376720000989735,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "answer"
+            }
+          },
+          {
+            "kind": "model_call",
+            "input": [
+              {
+                "role": "user",
+                "content": "A $100 item is first increased in price by 10%, then the new price is discounted by 10%. What is the final price in dollars? Reply with just the number.\n\nYou previously answered:\n99\n\nCompute step by step: 100 increased by 10% gives the new price, then take 10% off that new price (not off 100). Recheck your first answer against this working and, if it was wrong, give the corrected final price in dollars as your final answer."
+              }
+            ],
+            "output": "Step 1: 100 increased by 10% = 100 × 1.10 = 110\n\nStep 2: 110 discounted by 10% = 110 × 0.90 = 99\n\n99",
+            "model": "claude-opus-4-8",
+            "usage": {
+              "input_tokens": 137,
+              "output_tokens": 60
+            },
+            "started_at": 1783599557.357694,
+            "ended_at": 1783599559.361546,
+            "duration_s": 2.0038482088129967,
+            "metadata": {
+              "stop_reason": "end_turn",
+              "role": "verify"
+            }
+          }
+        ]
+      },
+      "error": null,
+      "metadata": {}
+    }
+  ],
+  "scores": [
+    {
+      "case_id": "bat-and-ball",
+      "scorer": "verification_sound",
+      "value": 1.0,
+      "passed": true,
+      "dimension": "trace",
+      "detail": {
+        "judged": true,
+        "verdict": "sound",
+        "rationale": "Verification re-derived x=5 via correct algebra and confirmed the answer.",
+        "first_answer": "5",
+        "verify_output": "5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+        "judge_model": "claude-opus-4-8",
+        "judge_max_tokens": 1024,
+        "judge_prompt": "You are judging whether a model's self-verification of its own answer was SOUND.\nA verification is SOUND if it actually re-checked the answer against the problem and\nreached the correct verdict — correcting a wrong first answer, or confirming a right\none. It is UNSOUND if it rubber-stamped a wrong answer, introduced a new error, or its\nreasoning does not support its conclusion. You are given the reference (correct) answer\nto make this judgement; judge the verification, not the difficulty of the problem.\n\nRespond in exactly this format, nothing else:\nVERDICT: sound|unsound\nRATIONALE: <one line explaining the verdict>\n\nQUESTION:\nA bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost, in cents? Reply with just the number.\n\nREFERENCE ANSWER:\n5\n\nMODEL'S FIRST ANSWER:\n5\n\nMODEL'S VERIFICATION STEP:\n5\n\nThe algebra confirms it: x + (x + 100) = 110, so 2x + 100 = 110, meaning 2x = 10, thus x = 5 cents.\n\nCheck: ball = 5¢, bat = 105¢, total = 110¢ ✓ (and the bat costs exactly $1.00 more than the ball).",
+        "judge_raw": "VERDICT: sound\nRATIONALE: Verification re-derived x=5 via correct algebra and confirmed the answer."
+      }
+    },
+    {
+      "case_id": "widget-machines",
+      "scorer": "verification_sound",
+      "value": 1.0,
+      "passed": true,
+      "dimension": "trace",
+      "detail": {
+        "judged": true,
+        "verdict": "sound",
+        "rationale": "The verification correctly re-derived the per-machine rate and confirmed the answer of 5.",
+        "first_answer": "5",
+        "verify_output": "5\n\nOne machine takes 5 minutes to make one widget. With 100 machines working in parallel, each makes its own widget in 5 minutes, so 100 widgets take 5 minutes.",
+        "judge_model": "claude-opus-4-8",
+        "judge_max_tokens": 1024,
+        "judge_prompt": "You are judging whether a model's self-verification of its own answer was SOUND.\nA verification is SOUND if it actually re-checked the answer against the problem and\nreached the correct verdict — correcting a wrong first answer, or confirming a right\none. It is UNSOUND if it rubber-stamped a wrong answer, introduced a new error, or its\nreasoning does not support its conclusion. You are given the reference (correct) answer\nto make this judgement; judge the verification, not the difficulty of the problem.\n\nRespond in exactly this format, nothing else:\nVERDICT: sound|unsound\nRATIONALE: <one line explaining the verdict>\n\nQUESTION:\nIf it takes 5 machines 5 minutes to make 5 widgets, how long in minutes would it take 100 machines to make 100 widgets? Reply with just the number.\n\nREFERENCE ANSWER:\n5\n\nMODEL'S FIRST ANSWER:\n5\n\nMODEL'S VERIFICATION STEP:\n5\n\nOne machine takes 5 minutes to make one widget. With 100 machines working in parallel, each makes its own widget in 5 minutes, so 100 widgets take 5 minutes.",
+        "judge_raw": "VERDICT: sound\nRATIONALE: The verification correctly re-derived the per-machine rate and confirmed the answer of 5."
+      }
+    },
+    {
+      "case_id": "lily-pads",
+      "scorer": "verification_sound",
+      "value": 0.0,
+      "passed": false,
+      "dimension": "trace",
+      "detail": {
+        "judged": true,
+        "verdict": "unsound",
+        "rationale": "The verification merely restates \"47\" without any re-checking or reasoning, so it rubber-stamped the answer even though the result is correct.",
+        "first_answer": "47",
+        "verify_output": "47",
+        "judge_model": "claude-opus-4-8",
+        "judge_max_tokens": 1024,
+        "judge_prompt": "You are judging whether a model's self-verification of its own answer was SOUND.\nA verification is SOUND if it actually re-checked the answer against the problem and\nreached the correct verdict — correcting a wrong first answer, or confirming a right\none. It is UNSOUND if it rubber-stamped a wrong answer, introduced a new error, or its\nreasoning does not support its conclusion. You are given the reference (correct) answer\nto make this judgement; judge the verification, not the difficulty of the problem.\n\nRespond in exactly this format, nothing else:\nVERDICT: sound|unsound\nRATIONALE: <one line explaining the verdict>\n\nQUESTION:\nIn a lake there is a patch of lily pads. Every day the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how many days would it take to cover half of the lake? Reply with just the number.\n\nREFERENCE ANSWER:\n47\n\nMODEL'S FIRST ANSWER:\n47\n\nMODEL'S VERIFICATION STEP:\n47",
+        "judge_raw": "VERDICT: unsound\nRATIONALE: The verification merely restates \"47\" without any re-checking or reasoning, so it rubber-stamped the answer even though the result is correct."
+      }
+    },
+    {
+      "case_id": "months-28-days",
+      "scorer": "verification_sound",
+      "value": 1.0,
+      "passed": true,
+      "dimension": "trace",
+      "detail": {
+        "judged": true,
+        "verdict": "sound",
+        "rationale": "The verification correctly reasons that all 12 months have ≥28 days, confirming the right answer.",
+        "first_answer": "12",
+        "verify_output": "12\n\nAll twelve months have at least 28 days, since 28 is the minimum number of days in any month (February in a non-leap year). Every other month has 30 or 31 days, which is also at least 28. So my original answer of 12 was correct.",
+        "judge_model": "claude-opus-4-8",
+        "judge_max_tokens": 1024,
+        "judge_prompt": "You are judging whether a model's self-verification of its own answer was SOUND.\nA verification is SOUND if it actually re-checked the answer against the problem and\nreached the correct verdict — correcting a wrong first answer, or confirming a right\none. It is UNSOUND if it rubber-stamped a wrong answer, introduced a new error, or its\nreasoning does not support its conclusion. You are given the reference (correct) answer\nto make this judgement; judge the verification, not the difficulty of the problem.\n\nRespond in exactly this format, nothing else:\nVERDICT: sound|unsound\nRATIONALE: <one line explaining the verdict>\n\nQUESTION:\nHow many months of the year have at least 28 days? Reply with just the number.\n\nREFERENCE ANSWER:\n12\n\nMODEL'S FIRST ANSWER:\n12\n\nMODEL'S VERIFICATION STEP:\n12\n\nAll twelve months have at least 28 days, since 28 is the minimum number of days in any month (February in a non-leap year). Every other month has 30 or 31 days, which is also at least 28. So my original answer of 12 was correct.",
+        "judge_raw": "VERDICT: sound\nRATIONALE: The verification correctly reasons that all 12 months have ≥28 days, confirming the right answer."
+      }
+    },
+    {
+      "case_id": "raise-then-discount",
+      "scorer": "verification_sound",
+      "value": 1.0,
+      "passed": true,
+      "dimension": "trace",
+      "detail": {
+        "judged": true,
+        "verdict": "sound",
+        "rationale": "Verification correctly recomputes both steps and confirms the right answer 99.",
+        "first_answer": "99",
+        "verify_output": "Step 1: 100 increased by 10% = 100 × 1.10 = 110\n\nStep 2: 110 discounted by 10% = 110 × 0.90 = 99\n\n99",
+        "judge_model": "claude-opus-4-8",
+        "judge_max_tokens": 1024,
+        "judge_prompt": "You are judging whether a model's self-verification of its own answer was SOUND.\nA verification is SOUND if it actually re-checked the answer against the problem and\nreached the correct verdict — correcting a wrong first answer, or confirming a right\none. It is UNSOUND if it rubber-stamped a wrong answer, introduced a new error, or its\nreasoning does not support its conclusion. You are given the reference (correct) answer\nto make this judgement; judge the verification, not the difficulty of the problem.\n\nRespond in exactly this format, nothing else:\nVERDICT: sound|unsound\nRATIONALE: <one line explaining the verdict>\n\nQUESTION:\nA $100 item is first increased in price by 10%, then the new price is discounted by 10%. What is the final price in dollars? Reply with just the number.\n\nREFERENCE ANSWER:\n99\n\nMODEL'S FIRST ANSWER:\n99\n\nMODEL'S VERIFICATION STEP:\nStep 1: 100 increased by 10% = 100 × 1.10 = 110\n\nStep 2: 110 discounted by 10% = 110 × 0.90 = 99\n\n99",
+        "judge_raw": "VERDICT: sound\nRATIONALE: Verification correctly recomputes both steps and confirms the right answer 99."
+      }
+    }
+  ]
+}

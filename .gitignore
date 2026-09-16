@@ -8,5 +8,5 @@ __pycache__/
 # Environment
 .env
 
-# Run outputs
+# Run outputs (scratch). Committed receipts live in runs/ — see README "The run ledger".
 results/
