@@ -1,7 +1,7 @@
 [project]
 name = "trace-eval"
 version = "0.1.0"
-description = "A minimal eval harness with pluggable scorers and real trace capture."
+description = "A minimal eval harness with pluggable scorers, real trace capture, and a public findings ledger where the harness catches its own vacuous scorers."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

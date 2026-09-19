@@ -13,9 +13,18 @@ without a refactor:
    `TraceStep`s. A scorer that inspects `result.trace.steps` needs no change to these
    seams to do it.
 
-The first payoff is the `verify_before_assert` scorer: it grades the *process* — did the
-model verify its answer before committing — by reading the trace, not the output. See
-[Grading the process](#grading-the-process-a-trace-level-scorer) below.
+Those seams have carried four builds without a refactor, and most of what those builds
+found was the harness itself being wrong. A trace scorer grades the *process* (did the model verify before
+committing) and passed everything, which is how it was found to be measuring presence, not
+efficacy. An LLM judge grades whether a verification was *sound*, and a meta-eval measures
+the judge before any verdict is trusted. Mutation testing feeds every scorer deliberately
+broken runs and reports which fail to fail. A run ledger commits the real runs as receipts,
+each tied to the harness commit that produced it.
+
+The findings that came out of that are the point of the repo. They are in
+[`FINDINGS.md`](FINDINGS.md), dated, each linked to the run record behind it. This is a
+small harness with real runs, a practitioner's notebook rather than research; the numbers
+are honest about what they can and cannot say.
 
 ## Install
 
@@ -37,7 +46,7 @@ export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 This runs the 5-case sample task, scores each result against its reference, writes the
-run to `results/<task>-<timestamp>.json`, and emits `results/report.md`:
+run to `results/<task>-<scorer>-<timestamp>.json`, and emits `results/report.md`:
 
 ```text
 # Eval Report — sample
@@ -154,7 +163,7 @@ offline with no key.
 Output scores and trace scores render in separate, clearly-labelled report sections, so a
 process verdict is never read as a correctness verdict.
 
-Real output from both scorers — full runs with complete traces — is committed under
+Real output from every scorer and mode — full runs with complete traces — is committed under
 [`examples/`](examples/), so you can read what the harness produces without running it.
 
 ## Judging soundness, and how much to trust the judge
