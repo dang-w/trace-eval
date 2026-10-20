@@ -1,7 +1,15 @@
 # trace-eval
 
-A minimal eval harness that runs one evaluation end to end — and captures a real,
-structured **trace** for every result, not just the final string.
+A minimal, working eval harness that runs one evaluation end to end - and captures a
+real, structured **trace** for every result, not just the final string. Its findings are
+about the verifier, not the model: the LLM judge is measured before it is trusted (10 of
+10 on a deliberately clear-cut gold set, stable over 5 samples per item), the scorers are
+mutation-tested (the structural scorer killed 2 of 4 mutants and accepted the two that
+keep the shape of verification without its substance; the reference scorer failed its
+own baseline, so its kill rate is void), and every figure links to a committed run
+record. Limits: small, hand-written task sets; one case and five mutant classes; no
+tool-call traces yet. Part of the evaluation-and-control work at
+[danwalsh.co](https://www.danwalsh.co/projects).
 
 It is deliberately small. The value is in getting two interface seams right, so the
 things that come next (richer traces, semantic diff, experiments) are cheap to add
