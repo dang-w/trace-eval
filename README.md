@@ -17,7 +17,7 @@ without a refactor:
 
 1. **A pluggable scorer** is just a function `(Case, Result) -> Score`. No registry, no
    base class, no plugin system.
-2. **Trace capture**: a `Result` carries a `Trace` — an ordered list of typed
+2. **Trace capture**: a `Result` carries a `Trace` - an ordered list of typed
    `TraceStep`s. A scorer that inspects `result.trace.steps` needs no change to these
    seams to do it.
 
@@ -76,7 +76,7 @@ Flags: `--model` (default `claude-opus-4-8`), `--max-tokens` (default 1024),
 ## Task format
 
 A task is a directory with a `cases.json` (a list of case objects) and an optional
-`task.json` (`name`, `description`). Tasks are JSON fixtures in v1 — there is no config
+`task.json` (`name`, `description`). Tasks are JSON fixtures in v1 - there is no config
 DSL.
 
 ```json
@@ -85,10 +85,10 @@ DSL.
 ]
 ```
 
-A case may also declare an optional `self_check` — a plain instruction for a verification
+A case may also declare an optional `self_check` - a plain instruction for a verification
 pass. When present, the runner runs the answer, then feeds the answer plus that
 instruction back in as a second `model_call`, so the trace has a real verify step to
-grade. This is a **fixed two-step sequence** (answer, then verify) — not an agent loop,
+grade. This is a **fixed two-step sequence** (answer, then verify) - not an agent loop,
 tool use, or planning.
 
 ```json
@@ -153,8 +153,8 @@ when the trace holds a substantive verification step that revisited the answer:
 ```text
 ## Trace-level scores (process)
 
-_Grades the process from the trace — did a substantive verification step revisit the
-answer — not whether the answer is correct._
+_Grades the process from the trace - did a substantive verification step revisit the
+answer - not whether the answer is correct._
 
 | Case | Verified | Score | Verification | Reason |
 | --- | :---: | ---: | --- | --- |
@@ -164,21 +164,21 @@ answer — not whether the answer is correct._
 The substance bar is deliberately **structural**: a verify step exists, follows the
 answer, is non-empty, and clears a small character floor (a real second pass, not a
 one-token rubber-stamp). It does **not** judge whether the verification was
-*semantically* correct — whether it caught the right thing. That is an LLM-as-judge trace
+*semantically* correct - whether it caught the right thing. That is an LLM-as-judge trace
 scorer, a later build. Keeping it structural keeps it pure, deterministic, and testable
 offline with no key.
 
 Output scores and trace scores render in separate, clearly-labelled report sections, so a
 process verdict is never read as a correctness verdict.
 
-Real output from every scorer and mode — full runs with complete traces — is committed under
+Real output from every scorer and mode - full runs with complete traces - is committed under
 [`examples/`](examples/), so you can read what the harness produces without running it.
 
 ## Judging soundness, and how much to trust the judge
 
 `verify_before_assert` is structural: it confirms a verification *happened*, not that it was
-any good. Judging whether a verification was **sound** — did it actually check the answer and
-reach the right verdict — is a semantic call, so it needs a model. `verification_sound` is
+any good. Judging whether a verification was **sound** - did it actually check the answer and
+reach the right verdict - is a semantic call, so it needs a model. `verification_sound` is
 that LLM-as-judge: given the question, the first answer, the verify step, and the reference
 answer, it returns `sound` / `unsound` plus a one-line rationale.
 
@@ -198,20 +198,20 @@ trust it before trusting any verdict it makes**. That is the meta-eval:
 It runs the judge `K` times over a small, hand-labelled **gold set** and reports two numbers,
 *above* any verdict the judge produced:
 
-- **Self-consistency** — does the judge give the same verdict across identical calls?
+- **Self-consistency** - does the judge give the same verdict across identical calls?
   (Measures stability, not correctness.) Every raw verdict is retained, never collapsed early.
-- **Gold-agreement** — does the judge's verdict match a human's on the gold set? (Measures
+- **Gold-agreement** - does the judge's verdict match a human's on the gold set? (Measures
   correctness.) The exact disagreements are listed.
 
 The report leads with those trust figures and only then shows the judge's verdicts, so a
 verdict is never read without the figures that bound how much it is worth. The gold set
 ([`gold/verification_sound.json`](gold/verification_sound.json)) is a **self-contained**,
-hand-labelled fixture — a human label attaches to a specific verify-step output, so the
+hand-labelled fixture - a human label attaches to a specific verify-step output, so the
 labelled material travels with the file rather than being keyed to a (varying) live run.
 
 The task set gains [`tasks/soundness/`](tasks/soundness/): cognitive-reflection traps whose
 seductive first answer is wrong, so a verification can genuinely be sound (catches it) or
-unsound (rubber-stamps it) — the material the judge needs. The trace report also surfaces a
+unsound (rubber-stamps it) - the material the judge needs. The trace report also surfaces a
 coarse **Changed** signal (first answer vs committed output); it is not a semantic correction
 verdict (that is a later build).
 
